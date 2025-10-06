@@ -1,0 +1,4 @@
+.venv
+.env
+app/static/css.txt
+app/templates/html.txt
