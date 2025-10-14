@@ -21,8 +21,7 @@ from langchain_core.prompts.few_shot import FewShotChatMessagePromptTemplate
 from langchain.agents import create_tool_calling_agent, AgentExecutor
 from datetime import datetime
 from zoneinfo import ZoneInfo
-from analista_tools import TOOLS_ANALISE
-from gerador_relatorio import TOOLS_RELATORIO
+from gemini.tools.analista_tools import TOOLS_ANALISE
 import json
 
 
