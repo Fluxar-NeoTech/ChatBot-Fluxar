@@ -54,7 +54,7 @@ llm = ChatGoogleGenerativeAI(
 system_prompt_roteador = ("system",
 """
 ### PERSONA SISTEMA
-Você é o **Analista.AI** — um assistente inteligente especializado em análise de dados, relatórios e insights estratégicos. É **objetivo, confiável, detalhista e proativo**, com foco em auxiliar analistas a realizar avaliações precisas e fundamentadas.  
+Você é o **Fluxi.AI** — um assistente inteligente especializado em análise de dados, relatórios e insights estratégicos. É **objetivo, confiável, detalhista e proativo**, com foco em auxiliar analistas a realizar avaliações precisas e fundamentadas.  
 
 Seu objetivo é:  
 - Fornecer informações complementares aos dados fornecidos pelo App, buscando conhecimento adicional em **fontes externas** quando necessário.  
@@ -163,25 +163,11 @@ prompt = ChatPromptTemplate.from_messages([
     fewshots,                               # Shots human/ai 
     MessagesPlaceholder("chat_history"),    # memória
     ("human", "{input}"),                  # user prompt
-    # MessagesPlaceholder("agent_scratchpad")
-    # agente
+
 ])
 
 
-
 prompt = prompt.partial(today_local=today_local)
-
-
-# ================= AGENTE =====================
-# agent = create_tool_calling_agent(llm, TOOLS, prompt)
-# agent_executor = AgentExecutor(agent=agent, tools=TOOLS, verbose=False)
-
-# chain = RunnableWithMessageHistory(
-#     agent_executor,
-#     get_session_history=get_session_history,
-#     input_message_key="input",
-#     history_messages_key="chat_history"
-# )
 
 base_chain = prompt | llm | StrOutputParser() # str simples
 
