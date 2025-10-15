@@ -298,7 +298,7 @@ chain_analista = RunnableWithMessageHistory(
 # ========================================================= Função de direcionamento de Agentes ==================================================
 
 # Chamada de agentes
-def chamada_agente(pergunta: str, user_id: str):
+def chamada_agente(pergunta: str, user_id: str) -> str:
 
     session_config = {"configurable": {"user_id": user_id}}
     # ver como usar o user_id aqui 
