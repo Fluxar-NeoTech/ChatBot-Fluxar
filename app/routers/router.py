@@ -1,7 +1,7 @@
-from app.gemini.modelo import chamada_agente
+from app.gemini.modelos.orquestrador import chamada_agente
 from app.models.pergunta_analista import PerguntaAnalista
-from fastapi import FastAPI, APIRouter, Path, Body, JSONResponse, status 
-
+from fastapi import FastAPI, APIRouter, Path, Body, status 
+from fastapi.responses import JSONResponse
 
 router = APIRouter(prefix="/session")
 
