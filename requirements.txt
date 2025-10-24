@@ -1,15 +1,15 @@
-langchain
-langchain-google-genai
-python-dotenv
+langchain==0.3.27
+langchain-google-genai==2.0.10
+python-dotenv==1.1.0
 streamlit
 sentence-transformers
 pymongo
 numpy
-google-generativeai
-langchain-community
+google-generativeai==0.8.5
+langchain-community==0.3.29
 psycopg2
-pydantic
-uvicorn
-fastapi
+pydantic==2.11.7
+uvicorn==0.37.0
+fastapi==0.119.0
 
 
