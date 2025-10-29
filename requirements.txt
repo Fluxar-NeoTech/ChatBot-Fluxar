@@ -7,9 +7,10 @@ pymongo
 numpy
 google-generativeai==0.8.5
 langchain-community==0.3.29
-psycopg2
+psycopg
 pydantic==2.11.7
 uvicorn==0.37.0
 fastapi==0.119.0
+faiss-cpu
 
 
