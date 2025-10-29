@@ -1,7 +1,7 @@
 import os
 from typing import Optional
 from dotenv import load_dotenv
-import psycopg2
+import psycopg
 from langchain.tools import tool  # ou "from langchain.tools import tool" dependendo da versão
 from pydantic import BaseModel, Field
 from typing import List, Dict, Any, Optional

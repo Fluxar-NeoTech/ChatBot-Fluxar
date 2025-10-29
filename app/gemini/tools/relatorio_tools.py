@@ -1,5 +1,5 @@
 from langchain.tools import tool
-import psycopg2
+import psycopg
 from pydantic import BaseModel, Field
 from typing import List, Dict
 import datetime 
@@ -15,7 +15,7 @@ load_dotenv()
 DATABASE_URL = os.getenv("DATABASE_URL")  
 
 def get_conn():
-    return psycopg2.connect(DATABASE_URL)
+    return psycopg.connect(DATABASE_URL)
 
 # ---------------------------------------------- Sugestões de Melhorias -----------------------------------------------
 class SugestoesEstoqueArgs(BaseModel):
@@ -178,8 +178,8 @@ def comparar_relatorios_mensais(mes_a: str, mes_b: str) -> dict:
     Retorna diferenças em volume, ocupação e saldo.
     """
     client = MongoClient(mongo_uri)
-    db = client["NeoTechTest"]
-    col = db["test"]
+    db = client["ChatBot"]
+    col = db["relatorios_mensais"]
 
     try:
         rel_a = col.find_one({"mes_referencia": mes_a})
@@ -236,8 +236,8 @@ def consulta_relatorio_mensal(
 
     try:
         client = MongoClient(MONGO_URI)
-        db = client["NeoTechTest"]
-        collection = db["test"]
+        db = client["ChatBot"]
+        collection = db["relatorios_mensais"]
 
         filtro = {}
         if mes_referencia:
