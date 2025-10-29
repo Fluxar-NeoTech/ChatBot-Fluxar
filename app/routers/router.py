@@ -1,3 +1,4 @@
+from app.gemini.RPA.geracao_relatorios import gerar_relatorio_mensal, gerar_relatorio_resumo
 from app.gemini.modelos.orquestrador import chamada_agente
 from app.models.pergunta_analista import PerguntaAnalista
 from fastapi import FastAPI, APIRouter, Path, Body, status 
@@ -8,6 +9,9 @@ router = APIRouter(prefix="/session")
 @router.post("/{user_id}")
 async def enviar_resposta(user_id: int = Path(...,title="ID do Usuário", description="Identificador único do usuário"), body: PerguntaAnalista = Body(description="Pergunta enviada pelo usuário")):
     try:
+        resumo_geral, df_completo, mes_ref = gerar_relatorio_resumo()
+        gerar_relatorio_mensal(resumo_geral, df_completo, mes_ref, user_id)
+        
         resposta = chamada_agente(body.pergunta, user_id)  
         return JSONResponse(
             content={"resposta": resposta},

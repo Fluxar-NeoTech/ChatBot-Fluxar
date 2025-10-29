@@ -47,7 +47,7 @@ Interpretar a PERGUNTA_ORIGINAL e executar raciocínio analítico baseado no ret
 ### SAÍDA (JSON)
 Campos mínimos para enviar para o orquestrador:
 - dominio   : "análise" | "estoque" 
-- intencao  : "consultar" | "resumo" | "investigar"
+- intencao  : "analisar" | "resumo" | "investigar"
 - resposta  : uma frase objetiva e explicativa
 - recomendacao : ação prática (pode ser string vazia)
 
@@ -104,7 +104,9 @@ agent_analise = create_tool_calling_agent(llm, TOOLS_ANALISE, prompt_analise)
 agent_executor_analise = AgentExecutor(
     agent=agent_analise,
     tools=TOOLS_ANALISE,
-    verbose=False
+    verbose=False, 
+        handle_parsing_errors=True,
+    return_intermediate_steps=True
 )
 
 # chain
