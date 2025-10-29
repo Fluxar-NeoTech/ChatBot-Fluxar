@@ -3,6 +3,7 @@
 import json
 from app.gemini.modelos.roteador import chain_roteador
 from app.gemini.modelos.agente_analista import chain_analista
+from app.gemini.modelos.faq import chain_faq
 from app.gemini.modelos.agente_relatorio import chain_relatorio
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables.history import RunnableWithMessageHistory
@@ -88,6 +89,10 @@ shots_orquestrador = [
         "human": "ROUTE=analise_estoque\nPERGUNTA_ORIGINAL=Detectar anomalias no setor de Armazenagem\nPERSONA={PERSONA_SISTEMA}\nCLARIFY=",
         "ai": """{{"dominio":"analise_estoque","intencao":"detectar_anomalias","resposta":"Foram detectadas inconsistências no setor de Armazenagem: divergência de 48 L entre o estoque físico e o registrado.","recomendacao":"Deseja que eu gere um relatório detalhado da auditoria?","documento":{{"setor":"Armazenagem","divergencia_L":48,"tipo_inconsistencia":"estoque_fisico_vs_sistema","data_detectada":"2025-10-26T15:40:00","responsavel_verificacao":"Agente de Análise de Estoque"}}}}"""
     },
+    {
+        "human": "ROUTE=faq\nPERGUNTA_ORIGINAL=qual o e-mail de suporte?\nPERSONA={{PERSONA_SISTEMA}}\nCLARIFY=",
+        "ai": """{{"dominio":"faq","intencao":"consultar_faq","resposta":"Você pode entrar em contato com nossa equipe de suporte pelo e-mail suporte2025.neo.tech@gmail.com.","recomendacao":"Se preferir, posso também abrir um chamado diretamente no sistema para você.","documento":{{"tipo":"contato_suporte","email":"suporte2025.neo.tech@gmail.com","canal_alternativo":"formulário de suporte no portal Neo Tech","ultima_atualizacao":"2025-10-29T14:00:00","responsavel":"Atendimento Neo Tech"}}}}"""
+    },
 
 ]
 
@@ -135,6 +140,10 @@ def chamada_agente(pergunta: str, user_id: int):
        
     elif "ROUTE=relatorio_mensal" in resposta_roteador:
         resposta = chain_relatorio.invoke({"input":resposta_roteador},
+            config=session_config)
+        
+    elif "ROUTE=faq" in resposta_roteador:
+        resposta = chain_faq.invoke({"input":resposta_roteador},
             config=session_config)
         
     else:
