@@ -16,7 +16,7 @@ from langchain.agents import create_tool_calling_agent, AgentExecutor
 from app.gemini.tools.analista_tools import TOOLS_ANALISE
 from app.gemini.modelos.base import today_local, example_prompt, llm, get_session_history
 from langchain_core.output_parsers import StrOutputParser
-
+from app.gemini.modelos.juiz import avaliar_resposta_agente
 
 # --------------------------------------------------------------- Orquestrador -----------------------------------------------------------------------
  
@@ -25,17 +25,17 @@ from langchain_core.output_parsers import StrOutputParser
 system_prompt_orquestrador = ("system",
     """
 ### PAPEL
-Você é o Agente Orquestrador do Flux.AI. Sua função é entregar a resposta final ao usuário **somente** quando um Especialista retornar o JSON.
+Você é o Agente Orquestrador do Flux.AI. Sua função é entregar a resposta_agente final ao usuário **somente** quando um Especialista retornar o JSON.
  
  
 ### ENTRADA
 - ESPECIALISTA_JSON contendo chaves como:
-dominio, intencao, resposta, recomendacao (opcional), acompanhamento (opcional),
+dominio, intencao, resposta_agente, recomendacao (opcional), acompanhamento (opcional),
 esclarecer (opcional), janela_tempo (opcional), evento (opcional), escrita (opcional), indicadores (opcional).
  
  
 ### REGRAS
-- Use **exatamente** `resposta` do especialista como a **primeira linha** do output.
+- Use **exatamente** `resposta_agente` do especialista como a **primeira linha** do output.
 - Se `recomendacao` existir e não for vazia, inclua a seção *Recomendação*; caso contrário, **omita**.
 - Para *Acompanhamento*: se houver `esclarecer`, use-o; senão, se houver `acompanhamento`, use-o; caso contrário, **omita** a seção.
 - Não reescreva números/datas se já vierem prontos. Não invente dados. Seja conciso.
@@ -43,7 +43,7 @@ esclarecer (opcional), janela_tempo (opcional), evento (opcional), escrita (opci
  
  
 ### FORMATO DE SAÍDA (sempre ao usuário)
-<sua resposta será 1 frase objetiva sobre a situação>
+<sua resposta_agente será 1 frase objetiva sobre a situação>
 - *Recomendação*:
 <ação prática e imediata>     # omita esta seção se não houver recomendação
 - *Acompanhamento* (opcional):
@@ -65,13 +65,13 @@ shots_orquestrador = [
     # 1) Gerar relatório por período (com documento retornado)
     {
         "human": "ROUTE=analise_relatorios\nPERGUNTA_ORIGINAL=Gerar relatório de movimentação entre 2025-09-01 e 2025-09-30\nPERSONA={PERSONA_SISTEMA}\nCLARIFY=",
-        "ai": """{{"dominio":"analise_relatorios","intencao":"gerar_relatorio_periodo","resposta":"O relatório de movimentação entre 2025-09-01 e 2025-09-30 foi gerado com sucesso. O saldo final foi de 438 L, com ocupação média de 72%.","recomendacao":"Deseja que eu gere também as sugestões de otimização de estoque?","janela_tempo":{{"de":"2025-09-01","ate":"2025-09-30","rotulo":"setembro/2025"}},"documento":{{"relatorio_id":"relat_2025_09","periodo":{{"de":"2025-09-01","ate":"2025-09-30","rotulo":"setembro/2025"}},"dados":{{"saldo_final_L":438,"ocupacao_media_%":72,"entradas_total_L":980,"saidas_total_L":542}},"setores":[{{"nome":"Produção","uso_L":220,"ocupacao_%":68}},{{"nome":"Armazenagem","uso_L":180,"ocupacao_%":75}},{{"nome":"Distribuição","uso_L":38,"ocupacao_%":55}}],"gerado_em":"2025-10-01T09:30:00","responsavel":"Agente de Análise de Relatórios"}}}}"""
+        "ai": """{{"dominio":"analise_relatorios","intencao":"gerar_relatorio_periodo","resposta_agente":"O relatório de movimentação entre 2025-09-01 e 2025-09-30 foi gerado com sucesso. O saldo final foi de 438 L, com ocupação média de 72%.","recomendacao":"Deseja que eu gere também as sugestões de otimização de estoque?","janela_tempo":{{"de":"2025-09-01","ate":"2025-09-30","rotulo":"setembro/2025"}},"documento":{{"relatorio_id":"relat_2025_09","periodo":{{"de":"2025-09-01","ate":"2025-09-30","rotulo":"setembro/2025"}},"dados":{{"saldo_final_L":438,"ocupacao_media_%":72,"entradas_total_L":980,"saidas_total_L":542}},"setores":[{{"nome":"Produção","uso_L":220,"ocupacao_%":68}},{{"nome":"Armazenagem","uso_L":180,"ocupacao_%":75}},{{"nome":"Distribuição","uso_L":38,"ocupacao_%":55}}],"gerado_em":"2025-10-01T09:30:00","responsavel":"Agente de Análise de Relatórios"}}}}"""
     },
 
     # 2) Comparar relatórios mensais
     {
         "human": "ROUTE=analise_relatorios\nPERGUNTA_ORIGINAL=Comparar relatórios de 2025-09 e 2025-10\nPERSONA={PERSONA_SISTEMA}\nCLARIFY=",
-        "ai": """{{"dominio":"analise_relatorios","intencao":"comparar_relatorios_mensais","resposta":"Comparação concluída entre os meses 2025-09 e 2025-10: houve aumento de 85 L em entradas e queda de 40 L em saídas.","recomendacao":"Quer que eu apresente o gráfico de variação mês a mês?","documento":{{"comparacao_id":"cmp_2025_09_10","periodos":["2025-09","2025-10"],"diferencas":{{"entradas_L":85,"saidas_L":-40,"ocupacao_var_%":3.5}},"observacoes":["Aumento nas entradas devido a reabastecimento da linha de Produção.","Redução nas saídas por desaceleração da demanda em Distribuição."],"gerado_em":"2025-10-15T11:10:00","responsavel":"Agente de Análise de Relatórios"}}}}"""
+        "ai": """{{"dominio":"analise_relatorios","intencao":"comparar_relatorios_mensais","resposta_agente":"Comparação concluída entre os meses 2025-09 e 2025-10: houve aumento de 85 L em entradas e queda de 40 L em saídas.","recomendacao":"Quer que eu apresente o gráfico de variação mês a mês?","documento":{{"comparacao_id":"cmp_2025_09_10","periodos":["2025-09","2025-10"],"diferencas":{{"entradas_L":85,"saidas_L":-40,"ocupacao_var_%":3.5}},"observacoes":["Aumento nas entradas devido a reabastecimento da linha de Produção.","Redução nas saídas por desaceleração da demanda em Distribuição."],"gerado_em":"2025-10-15T11:10:00","responsavel":"Agente de Análise de Relatórios"}}}}"""
     },
 
     # ======================================================
@@ -81,17 +81,17 @@ shots_orquestrador = [
     # 1) Consultar níveis de estoque
     {
         "human": "ROUTE=analise_estoque\nPERGUNTA_ORIGINAL=Consultar níveis de estoque do produto Álcool Etílico\nPERSONA={PERSONA_SISTEMA}\nCLARIFY=",
-        "ai": """{{"dominio":"analise_estoque","intencao":"consultar_nivel","resposta":"Os níveis de estoque estão dentro da faixa segura. O produto 'Álcool Etílico' apresenta 62% da capacidade ocupada.","recomendacao":"Quer que eu verifique o histórico de consumo desse item?","documento":{{"produto":"Álcool Etílico","nivel_atual_%":62,"capacidade_total_L":1200,"estoque_atual_L":744,"status":"seguro","ultima_atualizacao":"2025-10-25T08:20:00"}}}}"""
+        "ai": """{{"dominio":"analise_estoque","intencao":"consultar_nivel","resposta_agente":"Os níveis de estoque estão dentro da faixa segura. O produto 'Álcool Etílico' apresenta 62% da capacidade ocupada.","recomendacao":"Quer que eu verifique o histórico de consumo desse item?","documento":{{"produto":"Álcool Etílico","nivel_atual_%":62,"capacidade_total_L":1200,"estoque_atual_L":744,"status":"seguro","ultima_atualizacao":"2025-10-25T08:20:00"}}}}"""
     },
 
     # 2) Detectar anomalias ou inconsistências
     {
         "human": "ROUTE=analise_estoque\nPERGUNTA_ORIGINAL=Detectar anomalias no setor de Armazenagem\nPERSONA={PERSONA_SISTEMA}\nCLARIFY=",
-        "ai": """{{"dominio":"analise_estoque","intencao":"detectar_anomalias","resposta":"Foram detectadas inconsistências no setor de Armazenagem: divergência de 48 L entre o estoque físico e o registrado.","recomendacao":"Deseja que eu gere um relatório detalhado da auditoria?","documento":{{"setor":"Armazenagem","divergencia_L":48,"tipo_inconsistencia":"estoque_fisico_vs_sistema","data_detectada":"2025-10-26T15:40:00","responsavel_verificacao":"Agente de Análise de Estoque"}}}}"""
+        "ai": """{{"dominio":"analise_estoque","intencao":"detectar_anomalias","resposta_agente":"Foram detectadas inconsistências no setor de Armazenagem: divergência de 48 L entre o estoque físico e o registrado.","recomendacao":"Deseja que eu gere um relatório detalhado da auditoria?","documento":{{"setor":"Armazenagem","divergencia_L":48,"tipo_inconsistencia":"estoque_fisico_vs_sistema","data_detectada":"2025-10-26T15:40:00","responsavel_verificacao":"Agente de Análise de Estoque"}}}}"""
     },
     {
         "human": "ROUTE=faq\nPERGUNTA_ORIGINAL=qual o e-mail de suporte?\nPERSONA={{PERSONA_SISTEMA}}\nCLARIFY=",
-        "ai": """{{"dominio":"faq","intencao":"consultar_faq","resposta":"Você pode entrar em contato com nossa equipe de suporte pelo e-mail suporte2025.neo.tech@gmail.com.","recomendacao":"Se preferir, posso também abrir um chamado diretamente no sistema para você.","documento":{{"tipo":"contato_suporte","email":"suporte2025.neo.tech@gmail.com","canal_alternativo":"formulário de suporte no portal Neo Tech","ultima_atualizacao":"2025-10-29T14:00:00","responsavel":"Atendimento Neo Tech"}}}}"""
+        "ai": """{{"dominio":"faq","intencao":"consultar_faq","resposta_agente":"Você pode entrar em contato com nossa equipe de suporte pelo e-mail suporte2025.neo.tech@gmail.com.","recomendacao":"Se preferir, posso também abrir um chamado diretamente no sistema para você.","documento":{{"tipo":"contato_suporte","email":"suporte2025.neo.tech@gmail.com","canal_alternativo":"formulário de suporte no portal Neo Tech","ultima_atualizacao":"2025-10-29T14:00:00","responsavel":"Atendimento Neo Tech"}}}}"""
     },
 
 ]
@@ -121,51 +121,100 @@ chain_orquestrador = RunnableWithMessageHistory(
 
 # ========================================================= Função de direcionamento de Agentes ==================================================
 
-# Chamada de agentes
-def chamada_agente(pergunta: str, user_id: int):
-
+def chamada_agente(pergunta: str, user_id: int, max_tentativas: int = 2):
     session_config = {"configurable": {"session_id": user_id}}
-    # ver como usar o user_id aqui 
-    resposta_roteador = chain_roteador.invoke(
-            {"input":pergunta},
+    tentativa = 1
+
+    while tentativa <= max_tentativas:
+
+        # =========================
+        # 1️⃣ Roteador decide qual agente usar
+        # =========================
+        resposta_agente_roteador = chain_roteador.invoke(
+            {"input": pergunta},
             config=session_config
         )
-    if "ROUTE=" not in resposta_roteador:
-        return resposta_roteador
-   
-    elif "ROUTE=analise_estoque" in resposta_roteador:
-        resposta = chain_analista.invoke({"input":resposta_roteador},
-            config=session_config)
 
-       
-    elif "ROUTE=relatorio_mensal" in resposta_roteador:
-        resposta = chain_relatorio.invoke({"input":resposta_roteador},
-            config=session_config)
-        
-    elif "ROUTE=faq" in resposta_roteador:
-        resposta = chain_faq.invoke({"input":resposta_roteador},
-            config=session_config)
-        
-    else:
-        # Caso o roteador não se encaixe em nenhuma rota esperada
-        return "Rota não reconhecida pelo orquestrador."
+        # Define o agente responsável com base na rota
+        if "ROUTE=analise_estoque" in resposta_agente_roteador:
+            agente_escolhido = chain_analista
+        elif "ROUTE=relatorio_mensal" in resposta_agente_roteador:
+            agente_escolhido = chain_relatorio
+        elif "ROUTE=faq" in resposta_agente_roteador:
+            agente_escolhido = chain_faq
+        else:
+            return "Rota não reconhecida pelo orquestrador."
 
-    
-    if not isinstance(resposta, dict):
-        resposta = json.loads(resposta)
-    resposta = resposta.get("output",resposta)
-    resposta = chain_orquestrador.invoke({"input":resposta, "chat_history": get_session_history(user_id)  # Passando o histórico
-    },
-            config=session_config)
-   
-    if isinstance(resposta, str):
-        try:
-            resposta = json.loads(resposta)
-        except json.JSONDecodeError:
-            pass
-    else:
-        resposta = resposta.get("output",resposta)
-    return resposta
+        # =========================
+        # 2️⃣ Gera resposta_agente inicial do agente
+        # =========================
+        resposta_agente = agente_escolhido.invoke(
+            {"input": resposta_agente_roteador},
+            config=session_config
+        )
+
+        if not isinstance(resposta_agente, dict) and resposta_agente.strip():
+            try:
+                resposta_agente = json.loads(resposta_agente)
+            except Exception:
+                pass
+        resposta_agente = resposta_agente.get("output", resposta_agente)
+
+        # =========================
+        # 3️⃣ Juiz avalia a resposta_agente do agente
+        # =========================
+        avaliacao_juiz = avaliar_resposta_agente(pergunta, resposta_agente)
+
+        # =========================
+        # 4️⃣ Decisão do juiz
+        # =========================
+        if "Aprovado" in avaliacao_juiz or "✅" in avaliacao_juiz:
+
+            # Garante que resposta_agente seja um dict
+            if isinstance(resposta_agente, str):
+                try:
+                    resposta_agente = json.loads(resposta_agente)
+                except json.JSONDecodeError:
+                    resposta_agente = {"output": resposta_agente}
+
+            # Converte em string JSON para enviar ao orquestrador
+            resposta_agente_json = json.dumps(resposta_agente, ensure_ascii=False)
+
+            # Envia ao orquestrador
+            resposta_orquestrada = chain_orquestrador.invoke({
+                "input": resposta_agente_json,
+                "chat_history": get_session_history(user_id)
+            }, config=session_config)
+
+            # Trata a resposta final
+            if isinstance(resposta_orquestrada, str):
+                resposta_final = resposta_orquestrada.strip()
+            elif isinstance(resposta_orquestrada, dict):
+                resposta_final = resposta_orquestrada.get("output", str(resposta_orquestrada))
+            else:
+                resposta_final = str(resposta_orquestrada)
+
+            return resposta_final
+
+
+        elif "Reprovado" in avaliacao_juiz or "⚠️" in avaliacao_juiz:
+
+            feedback = (
+                avaliacao_juiz.split("Feedback:")[-1].strip()
+                if "Feedback:" in avaliacao_juiz
+                else avaliacao_juiz
+            )
+
+            # Enriquecer o input original com o feedback do juiz
+            pergunta = (
+                f"{pergunta}\n\nO juiz reprovou a resposta_agente anterior. "
+                f"Reformule a resposta_agente considerando o feedback do juiz:\n{feedback}"
+            )
+
+        tentativa += 1
+
+    return resposta_agente
+
 
 
 
@@ -177,8 +226,8 @@ def chamada_agente(pergunta: str, user_id: int):
 #         print("Encerrando conversa. ")
 #         break
 #     try:
-#         resposta = chamada_agente(user_input, 2)
-#         print(resposta)
+#         resposta_agente = chamada_agente(user_input, 2)
+#         print(resposta_agente)
         
 #     except Exception as e:
 #         print(f"Erro ao consumir a API {e}")
