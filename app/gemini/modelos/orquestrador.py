@@ -126,7 +126,6 @@ def chamada_agente(pergunta: str, user_id: int, max_tentativas: int = 2):
     tentativa = 1
 
     while tentativa <= max_tentativas:
-        print(f"\nTentativa {tentativa} para o usuário {user_id}")
 
         # =========================
         # 1️⃣ Roteador decide qual agente usar
@@ -170,7 +169,6 @@ def chamada_agente(pergunta: str, user_id: int, max_tentativas: int = 2):
         # 4️⃣ Decisão do juiz
         # =========================
         if "Aprovado" in avaliacao_juiz or "✅" in avaliacao_juiz:
-            print("\nJuiz aprovou. Enviando ao orquestrador...")
 
             # Garante que resposta_agente seja um dict
             if isinstance(resposta_agente, str):
@@ -200,7 +198,6 @@ def chamada_agente(pergunta: str, user_id: int, max_tentativas: int = 2):
 
 
         elif "Reprovado" in avaliacao_juiz or "⚠️" in avaliacao_juiz:
-            print("\nJuiz reprovou. Reenviando para o mesmo agente...")
 
             feedback = (
                 avaliacao_juiz.split("Feedback:")[-1].strip()
@@ -216,7 +213,6 @@ def chamada_agente(pergunta: str, user_id: int, max_tentativas: int = 2):
 
         tentativa += 1
 
-    print("\nLimite de tentativas atingido. Retornando última resposta_agente.")
     return resposta_agente
 
 
