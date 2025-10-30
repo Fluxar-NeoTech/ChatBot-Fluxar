@@ -1,45 +1,69 @@
 import os
-from langchain_community.document_loaders import TextLoader  # para .md
+from langchain_community.document_loaders import TextLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-from langchain_community.vectorstores import FAISS
 from langchain_google_genai import GoogleGenerativeAIEmbeddings
+from pymongo import MongoClient
 
 MD_PATH = "app/gemini/docs/FAQ_Fluxar.md"
 
-def get_faq_context(question: str):
-    """
-    Busca os trechos mais relevantes do arquivo Markdown de FAQ com base na pergunta do usuário.
-    Retorna uma string contendo os trechos mais parecidos.
-    """
-    try:
-        # Carrega o Markdown como texto
-        loader = TextLoader(MD_PATH, encoding="utf-8")
-        docs = loader.load()
+# 🔹 conexão com o MongoDB
+client = MongoClient(os.getenv("MONGO_URI"))
+db = client["Embedding-FAQ"]
+collection = db["embedding"]
 
-        # Divide em trechos
-        splitter = RecursiveCharacterTextSplitter(
-            chunk_size=700,
-            chunk_overlap=150
-        )
-        chunks = splitter.split_documents(docs)
+def gerar_e_salvar_embeddings():
+    """Carrega o FAQ, divide em chunks e salva embeddings no Mongo."""
+    loader = TextLoader(MD_PATH, encoding="utf-8")
+    docs = loader.load()
 
-        # Gera embeddings (usa variável de ambiente GEMINI_API_KEY)
-        embeddings = GoogleGenerativeAIEmbeddings(
-            model="models/text-embedding-004",
-            google_api_key=os.getenv("GEMINI_API_KEY")
-        )
+    splitter = RecursiveCharacterTextSplitter(
+        chunk_size=700,
+        chunk_overlap=150
+    )
+    chunks = splitter.split_documents(docs)
 
-        # Busca com FAISS
-        db = FAISS.from_documents(chunks, embeddings)
+    embeddings_model = GoogleGenerativeAIEmbeddings(
+        model="models/text-embedding-004",
+        google_api_key=os.getenv("GEMINI_API_KEY")
+    )
 
-        results = db.similarity_search(question, k=6)
+    for i, chunk in enumerate(chunks):
+        text = chunk.page_content
+        vector = embeddings_model.embed_query(text)  # Gera embedding
 
-        context_text = "\n\n".join([r.page_content for r in results])
-        return context_text
-    except Exception as e:
-        # Em caso de qualquer falha, retorne contexto vazio
-        try:
-            print(f"[faq_tool] erro ao gerar contexto do FAQ: {type(e).__name__}: {e}")
-        except Exception:
-            pass
-        return ""
+        doc = {
+            "text": text,
+            "embedding": vector,
+            "metadata": {
+                "source": MD_PATH,
+                "chunk_id": i
+            }
+        }
+        collection.insert_one(doc)
+
+    print(f"{len(chunks)} embeddings salvos no MongoDB ✅")
+
+
+def buscar_no_mongo(question: str, k=6):
+    embeddings_model = GoogleGenerativeAIEmbeddings(
+        model="models/text-embedding-004",
+        google_api_key=os.getenv("GEMINI_API_KEY")
+    )
+
+    query_vector = embeddings_model.embed_query(question)
+
+    pipeline = [
+        {
+            "$vectorSearch": {
+                "queryVector": query_vector,
+                "path": "embedding",
+                "numCandidates": 50,
+                "limit": k
+            }
+        },
+        {"$project": {"text": 1, "score": {"$meta": "vectorSearchScore"}}}
+    ]
+
+    results = list(collection.aggregate(pipeline))
+    context_text = "\n\n".join([r["text"] for r in results])
+    return context_text

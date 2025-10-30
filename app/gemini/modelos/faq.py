@@ -10,7 +10,7 @@ from langchain_core.prompts import (
 from langchain_core.prompts.few_shot import FewShotChatMessagePromptTemplate
 from langchain.agents import create_tool_calling_agent, AgentExecutor
 from app.gemini.modelos.base import today_local, example_prompt, llm, get_session_history
-from app.gemini.tools.faq_tool import get_faq_context
+from app.gemini.tools.faq_tool import buscar_no_mongo
 from operator import itemgetter
 from langchain_core.runnables import RunnablePassthrough
 from langchain_core.output_parsers import StrOutputParser
@@ -51,6 +51,9 @@ prompt_faq = ChatPromptTemplate.from_messages([
      "Responda com base APENAS no CONTEXTO.")
 ])
 
+# Função para buscar contexto no MongoDB
+def get_faq_context(question: str) -> str:
+    return buscar_no_mongo(question, k=6)
 
 #chain
 chain_faq = (
@@ -60,3 +63,6 @@ chain_faq = (
     )
     | prompt_faq | llm | StrOutputParser()
 )
+
+
+
