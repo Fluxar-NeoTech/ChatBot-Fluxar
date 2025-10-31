@@ -18,6 +18,9 @@ from app.gemini.modelos.base import today_local, example_prompt, llm, get_sessio
 from langchain_core.output_parsers import StrOutputParser
 from app.gemini.modelos.juiz import avaliar_resposta_agente
 
+from app.guardrails.guardrail_input import contem_palavra_proibida
+from app.guardrails.guardrail_output import aplicar_output_guardrail
+
 # --------------------------------------------------------------- Orquestrador -----------------------------------------------------------------------
  
 
@@ -126,6 +129,11 @@ chain_orquestrador = RunnableWithMessageHistory(
 
 def chamada_agente(pergunta: str, user_id: int):
     session_config = {"configurable": {"session_id": user_id}}
+    
+    # INPUT GUARDRAIL — bloqueia mensagens inadequadas do usuário
+    if contem_palavra_proibida(pergunta):
+        return "⚠️ Sua mensagem contém linguagem inadequada. Por favor, reformule antes de continuar."
+
    
 
     resposta_agente_roteador = chain_roteador.invoke(
@@ -164,7 +172,10 @@ def chamada_agente(pergunta: str, user_id: int):
 
         # Trata a resposta final
 
-        return resposta_orquestrada
+        # OUTPUT GUARDRAIL — garante que a resposta final seja segura
+        resposta_final_segura = aplicar_output_guardrail(resposta_orquestrada)
+        return resposta_final_segura
+
 
 
     elif "Reprovado" in avaliacao_juiz:
@@ -194,7 +205,10 @@ def chamada_agente(pergunta: str, user_id: int):
         }, config=session_config)
 
 
-        return resposta_orquestrada
+        # OUTPUT GUARDRAIL — garante que a resposta final seja segura
+        resposta_final_segura = aplicar_output_guardrail(resposta_orquestrada)
+        return resposta_final_segura
+
 
 
 
