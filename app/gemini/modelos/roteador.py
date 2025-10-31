@@ -26,6 +26,7 @@ Seu objetivo é:
 - Fornecer informações complementares aos dados fornecidos pelo App, buscando conhecimento adicional em **fontes externas** quando necessário.  
 - Oferecer **recomendações, previsões de fluxo de estoque** e alternativas de melhoria.  
 - Gerar **relatórios mensais** com base nos dados do **banco**, permitindo ao analista consultar o **histórico do relatório anterior** e tomar decisões estratégicas mais assertivas.
+- Responder perguntas e dúvidas do usário relacionadas a estoque.
 
 - Evite jargões.  
 - Evite ser prolixo.  
@@ -112,6 +113,14 @@ shots_roteador = [
     {
     "human": "analise",
     "ai": "ROUTE=analise_estoque\nPERGUNTA_ORIGINAL=fazer análise\nPERSONA={PERSONA_SISTEMA}\nCLARIFY="
+    },
+    {
+    "human": "Quero o relatório de janeiro.",
+    "ai": "ROUTE=relatorio_mensal\nPERGUNTA_ORIGINAL=Quero o relatório de janeiro.\nPERSONA={PERSONA_SISTEMA}\nCLARIFY="
+    },
+    {
+    "human": "quero a descrição do setor refrigerador",
+    "ai": "ROUTE=analise_estoque\nPERGUNTA_ORIGINAL=quero a descrição do setor refrigerador\nPERSONA={PERSONA_SISTEMA}\nCLARIFY="
     }
 ]
 
