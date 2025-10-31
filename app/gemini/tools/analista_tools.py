@@ -159,6 +159,56 @@ def query_stock_movements(
         conn.close()
 
 
-TOOLS_ANALISE = [query_stock_movements]
+class QuerySetorDescricaoArgs(BaseModel):
+    nome_setor: str = Field(..., description="Nome do setor a ser consultado (busca parcial, sem distinção de maiúsculas/minúsculas)")
+
+
+@tool("query_setor_descricao", args_schema=QuerySetorDescricaoArgs)
+def query_setor_descricao(nome_setor: str) -> dict:
+    """
+    Consulta a descrição de um setor com base em seu nome.
+
+    Permite busca parcial (ILIKE) e retorna todos os setores encontrados 
+    que contenham o texto informado no nome.
+    """
+    conn = get_conn()
+    cur = conn.cursor()
+
+    try:
+        query = """
+            SELECT 
+                id,
+                nome,
+                descricao
+            FROM setor
+            WHERE nome ILIKE %s;
+        """
+        cur.execute(query, (f"%{nome_setor}%",))
+        rows = cur.fetchall()
+
+        if not rows:
+            return {"status": "nra", "message": f"Nenhum setor encontrado com nome semelhante a '{nome_setor}'."}
+
+        results = []
+        for row in rows:
+            results.append({
+                "id": row[0],
+                "nome": row[1],
+                "descricao": row[2] or "(sem descrição)"
+            })
+
+        return {"status": "ok", "resultados": results}
+
+    except Exception as e:
+        conn.rollback()
+        print("Erro ao executar query_setor_descricao:", e)
+        return {"status": "error", "message": str(e)}
+
+    finally:
+        cur.close()
+        conn.close()
+
+
+TOOLS_ANALISE = [query_stock_movements, query_setor_descricao]
 
 

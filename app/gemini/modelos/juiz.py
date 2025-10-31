@@ -25,10 +25,10 @@ Se tiver problemas, diga “⚠️ Reprovado” e proponha uma versão melhorada
 
 from langchain.schema import HumanMessage, SystemMessage
 
-def avaliar_resposta_agente(pergunta, resposta_tutor):
+def avaliar_resposta_agente(pergunta, resposta_agente):
     mensagens = [
         SystemMessage(content=prompt_juiz),
-        HumanMessage(content=f"Pergunta do aluno: {pergunta}\n\nResposta do tutor: {resposta_tutor}")
+        HumanMessage(content=f"Pergunta: {pergunta}\n\nResposta do tutor: {resposta_agente}")
     ]
     return juiz.invoke(mensagens).content
 

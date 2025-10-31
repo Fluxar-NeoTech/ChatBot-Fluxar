@@ -64,13 +64,13 @@ shots_orquestrador = [
 
     # 1) Gerar relatório por período (com documento retornado)
     {
-        "human": "ROUTE=analise_relatorios\nPERGUNTA_ORIGINAL=Gerar relatório de movimentação entre 2025-09-01 e 2025-09-30\nPERSONA={PERSONA_SISTEMA}\nCLARIFY=",
+        "human": "ROUTE=relatorio_mensal\nPERGUNTA_ORIGINAL=Gerar relatório de movimentação entre 2025-09-01 e 2025-09-30\nPERSONA={PERSONA_SISTEMA}\nCLARIFY=",
         "ai": """{{"dominio":"analise_relatorios","intencao":"gerar_relatorio_periodo","resposta_agente":"O relatório de movimentação entre 2025-09-01 e 2025-09-30 foi gerado com sucesso. O saldo final foi de 438 L, com ocupação média de 72%.","recomendacao":"Deseja que eu gere também as sugestões de otimização de estoque?","janela_tempo":{{"de":"2025-09-01","ate":"2025-09-30","rotulo":"setembro/2025"}},"documento":{{"relatorio_id":"relat_2025_09","periodo":{{"de":"2025-09-01","ate":"2025-09-30","rotulo":"setembro/2025"}},"dados":{{"saldo_final_L":438,"ocupacao_media_%":72,"entradas_total_L":980,"saidas_total_L":542}},"setores":[{{"nome":"Produção","uso_L":220,"ocupacao_%":68}},{{"nome":"Armazenagem","uso_L":180,"ocupacao_%":75}},{{"nome":"Distribuição","uso_L":38,"ocupacao_%":55}}],"gerado_em":"2025-10-01T09:30:00","responsavel":"Agente de Análise de Relatórios"}}}}"""
     },
 
     # 2) Comparar relatórios mensais
     {
-        "human": "ROUTE=analise_relatorios\nPERGUNTA_ORIGINAL=Comparar relatórios de 2025-09 e 2025-10\nPERSONA={PERSONA_SISTEMA}\nCLARIFY=",
+        "human": "ROUTE=relatorio_mensal\nPERGUNTA_ORIGINAL=Comparar relatórios de 2025-09 e 2025-10\nPERSONA={PERSONA_SISTEMA}\nCLARIFY=",
         "ai": """{{"dominio":"analise_relatorios","intencao":"comparar_relatorios_mensais","resposta_agente":"Comparação concluída entre os meses 2025-09 e 2025-10: houve aumento de 85 L em entradas e queda de 40 L em saídas.","recomendacao":"Quer que eu apresente o gráfico de variação mês a mês?","documento":{{"comparacao_id":"cmp_2025_09_10","periodos":["2025-09","2025-10"],"diferencas":{{"entradas_L":85,"saidas_L":-40,"ocupacao_var_%":3.5}},"observacoes":["Aumento nas entradas devido a reabastecimento da linha de Produção.","Redução nas saídas por desaceleração da demanda em Distribuição."],"gerado_em":"2025-10-15T11:10:00","responsavel":"Agente de Análise de Relatórios"}}}}"""
     },
 
@@ -93,7 +93,10 @@ shots_orquestrador = [
         "human": "ROUTE=faq\nPERGUNTA_ORIGINAL=qual o e-mail de suporte?\nPERSONA={{PERSONA_SISTEMA}}\nCLARIFY=",
         "ai": """{{"dominio":"faq","intencao":"consultar_faq","resposta_agente":"Você pode entrar em contato com nossa equipe de suporte pelo e-mail suporte2025.neo.tech@gmail.com.","recomendacao":"Se preferir, posso também abrir um chamado diretamente no sistema para você.","documento":{{"tipo":"contato_suporte","email":"suporte2025.neo.tech@gmail.com","canal_alternativo":"formulário de suporte no portal Neo Tech","ultima_atualizacao":"2025-10-29T14:00:00","responsavel":"Atendimento Neo Tech"}}}}"""
     },
-
+    {
+        "human": "ROUTE=analise_estoque\nPERGUNTA_ORIGINAL=Mostre a descrição do setor de embalagem.\nPERSONA={PERSONA_SISTEMA}\nCLARIFY=",
+        "ai": """{{"dominio":"analise_estoque","intencao":"consultar_setor","resposta_agente":"O setor de Embalagem é responsável pela finalização dos produtos, incluindo empacotamento e rotulagem.","recomendacao":"Verificar se há integração entre o setor de embalagem e o de expedição para otimizar o fluxo logístico.","documento":{{"setor":"Embalagem","descricao":"Responsável pela finalização dos produtos, empacotamento e rotulagem.","ultima_atualizacao":"2025-10-30T10:45:00","responsavel":"Agente de Análise de Setores"}}}}"""
+    }
 ]
 
 # fewshots
@@ -121,99 +124,77 @@ chain_orquestrador = RunnableWithMessageHistory(
 
 # ========================================================= Função de direcionamento de Agentes ==================================================
 
-def chamada_agente(pergunta: str, user_id: int, max_tentativas: int = 2):
+def chamada_agente(pergunta: str, user_id: int):
     session_config = {"configurable": {"session_id": user_id}}
-    tentativa = 1
+   
 
-    while tentativa <= max_tentativas:
+    resposta_agente_roteador = chain_roteador.invoke(
+        {"input": pergunta},
+        config=session_config
+    )
 
-        # =========================
-        # 1️⃣ Roteador decide qual agente usar
-        # =========================
-        resposta_agente_roteador = chain_roteador.invoke(
-            {"input": pergunta},
-            config=session_config
+    if "ROUTE=analise_estoque" in resposta_agente_roteador:
+        agente_escolhido = chain_analista
+    elif "ROUTE=relatorio_mensal" in resposta_agente_roteador:
+        agente_escolhido = chain_relatorio
+    elif "ROUTE=faq" in resposta_agente_roteador:
+        agente_escolhido = chain_faq
+    else:
+        return "Não foi possível gerar a resposta esperada. Tente reformular sua pergunta."
+
+
+    resposta_agente = agente_escolhido.invoke(
+        {"input": resposta_agente_roteador},
+        config=session_config
+    )
+  
+    avaliacao_juiz = avaliar_resposta_agente(pergunta, resposta_agente)
+
+
+    if "Aprovado" in avaliacao_juiz:
+
+
+        resposta = resposta_agente.get("output",resposta_agente)
+
+        # Envia ao orquestrador
+        resposta_orquestrada = chain_orquestrador.invoke({
+            "input": resposta,
+            "chat_history": get_session_history(user_id)
+        }, config=session_config)
+
+        # Trata a resposta final
+
+        return resposta_orquestrada
+
+
+    elif "Reprovado" in avaliacao_juiz:
+
+        feedback = (
+            avaliacao_juiz.split("Feedback:")[-1].strip()
+            if "Feedback:" in avaliacao_juiz
+            else avaliacao_juiz
         )
 
-        # Define o agente responsável com base na rota
-        if "ROUTE=analise_estoque" in resposta_agente_roteador:
-            agente_escolhido = chain_analista
-        elif "ROUTE=relatorio_mensal" in resposta_agente_roteador:
-            agente_escolhido = chain_relatorio
-        elif "ROUTE=faq" in resposta_agente_roteador:
-            agente_escolhido = chain_faq
-        else:
-            return "Rota não reconhecida pelo orquestrador."
+        # Enriquecer o input original com o feedback do juiz
+        pergunta_nova = (
+            f"{pergunta}\n\nO juiz reprovou a resposta_agente anterior. "
+            f"Reformule a resposta_agente considerando o feedback do juiz:\n{feedback}"
+        )
 
-        # =========================
-        # 2️⃣ Gera resposta_agente inicial do agente
-        # =========================
         resposta_agente = agente_escolhido.invoke(
-            {"input": resposta_agente_roteador},
-            config=session_config
+        {"input": pergunta_nova},
+        config=session_config
         )
+        
+        resposta = resposta_agente.get("output",resposta_agente)
 
-        if not isinstance(resposta_agente, dict) and resposta_agente.strip():
-            try:
-                resposta_agente = json.loads(resposta_agente)
-            except Exception:
-                pass
-        resposta_agente = resposta_agente.get("output", resposta_agente)
-
-        # =========================
-        # 3️⃣ Juiz avalia a resposta_agente do agente
-        # =========================
-        avaliacao_juiz = avaliar_resposta_agente(pergunta, resposta_agente)
-
-        # =========================
-        # 4️⃣ Decisão do juiz
-        # =========================
-        if "Aprovado" in avaliacao_juiz or "✅" in avaliacao_juiz:
-
-            # Garante que resposta_agente seja um dict
-            if isinstance(resposta_agente, str):
-                try:
-                    resposta_agente = json.loads(resposta_agente)
-                except json.JSONDecodeError:
-                    resposta_agente = {"output": resposta_agente}
-
-            # Converte em string JSON para enviar ao orquestrador
-            resposta_agente_json = json.dumps(resposta_agente, ensure_ascii=False)
-
-            # Envia ao orquestrador
-            resposta_orquestrada = chain_orquestrador.invoke({
-                "input": resposta_agente_json,
-                "chat_history": get_session_history(user_id)
-            }, config=session_config)
-
-            # Trata a resposta final
-            if isinstance(resposta_orquestrada, str):
-                resposta_final = resposta_orquestrada.strip()
-            elif isinstance(resposta_orquestrada, dict):
-                resposta_final = resposta_orquestrada.get("output", str(resposta_orquestrada))
-            else:
-                resposta_final = str(resposta_orquestrada)
-
-            return resposta_final
+        resposta_orquestrada = chain_orquestrador.invoke({
+            "input": resposta_agente,
+            "chat_history": get_session_history(user_id)
+        }, config=session_config)
 
 
-        elif "Reprovado" in avaliacao_juiz or "⚠️" in avaliacao_juiz:
-
-            feedback = (
-                avaliacao_juiz.split("Feedback:")[-1].strip()
-                if "Feedback:" in avaliacao_juiz
-                else avaliacao_juiz
-            )
-
-            # Enriquecer o input original com o feedback do juiz
-            pergunta = (
-                f"{pergunta}\n\nO juiz reprovou a resposta_agente anterior. "
-                f"Reformule a resposta_agente considerando o feedback do juiz:\n{feedback}"
-            )
-
-        tentativa += 1
-
-    return resposta_agente
+        return resposta_orquestrada
 
 
 

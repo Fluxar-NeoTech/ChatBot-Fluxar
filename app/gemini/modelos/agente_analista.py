@@ -69,12 +69,16 @@ shots_analista = [
         "ai": """{{"dominio":"analise","intencao":"consultar","resposta":"Os SKUs 451, 312 e 778 têm maior tempo médio em estoque (média 120 dias).","recomendacao":"Priorizar movimentação de estoque para outras unidades","indicadores":{"sku_451_dias":150,"sku_312_dias":130,"sku_778_dias":110}}}"""
     },
     {
-        "human": "ROUTE=analise_capacidade\nPERGUNTA_ORIGINAL=Mostre a ocupação média dos setores neste mês.\nPERSONA={PERSONA_SISTEMA}\nCLARIFY=",
+        "human": "ROUTE=analise_estoque\nPERGUNTA_ORIGINAL=Mostre a ocupação média dos setores neste mês.\nPERSONA={PERSONA_SISTEMA}\nCLARIFY=",
         "ai": """{{"dominio":"analise","intencao":"resumo","resposta":"A ocupação média geral foi de 72%, com destaque para o setor de frios (85%) e embalagens (68%).","recomendacao":"Avaliar expansão do setor de frios e redistribuição de produtos entre setores.","indicadores":{"ocupacao_media":72.4,"frios":85.0,"embalagens":68.2}}}"""
     },
     {
-        "human": "ROUTE=analise_validade\nPERGUNTA_ORIGINAL=Quais lotes estão próximos da data de validade?\nPERSONA={PERSONA_SISTEMA}\nCLARIFY=",
+        "human": "ROUTE=analise_estoque\nPERGUNTA_ORIGINAL=Quais lotes estão próximos da data de validade?\nPERSONA={PERSONA_SISTEMA}\nCLARIFY=",
         "ai": """{{"dominio":"analise","intencao":"alerta","resposta":"Foram encontrados 8 lotes com validade inferior a 15 dias, principalmente no setor de laticínios.","recomendacao":"Priorizar expedição imediata desses lotes ou movimentação para outras unidades","indicadores":{"lotes_em_risco":8,"media_validade_dias":12.4,"setor_critico":"laticínios"}}}"""
+    },
+    {
+        "human": "ROUTE=analise_estoque\nPERGUNTA_ORIGINAL=Mostre a descrição do setor de embalagem.\nPERSONA={PERSONA_SISTEMA}\nCLARIFY=",
+        "ai": """{{"dominio":"setor","intencao":"consultar","resposta":"O setor de Embalagem é responsável pela finalização dos produtos, incluindo empacotamento e rotulagem.","recomendacao":"Verificar se há integração entre o setor de embalagem e o de expedição para otimizar o fluxo logístico.","dados":{"setor":"Embalagem","descricao":"Responsável pela finalização dos produtos, empacotamento e rotulagem."}}}"""
     }
 ]
 
