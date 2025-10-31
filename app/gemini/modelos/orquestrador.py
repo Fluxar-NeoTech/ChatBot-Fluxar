@@ -55,6 +55,7 @@ esclarecer (opcional), janela_tempo (opcional), evento (opcional), escrita (opci
 """
 )
 
+
 # shots
 shots_orquestrador = [
 
@@ -62,28 +63,95 @@ shots_orquestrador = [
     # RELATÓRIOS
     # ======================================================
 
-    # 1) Gerar relatório por período (com documento retornado)
     {
-        "human": "ROUTE=relatorio_mensal\nPERGUNTA_ORIGINAL=Gerar relatório de movimentação entre 2025-09-01 e 2025-09-30\nPERSONA={PERSONA_SISTEMA}\nCLARIFY=",
-        "ai": """{{"dominio":"analise_relatorios","intencao":"gerar_relatorio_periodo","resposta_agente":"O relatório de movimentação entre 2025-09-01 e 2025-09-30 foi gerado com sucesso. O saldo final foi de 438 L, com ocupação média de 72%.","recomendacao":"Deseja que eu gere também as sugestões de otimização de estoque?","janela_tempo":{{"de":"2025-09-01","ate":"2025-09-30","rotulo":"setembro/2025"}},"documento":{{"relatorio_id":"relat_2025_09","periodo":{{"de":"2025-09-01","ate":"2025-09-30","rotulo":"setembro/2025"}},"dados":{{"saldo_final_L":438,"ocupacao_media_%":72,"entradas_total_L":980,"saidas_total_L":542}},"setores":[{{"nome":"Produção","uso_L":220,"ocupacao_%":68}},{{"nome":"Armazenagem","uso_L":180,"ocupacao_%":75}},{{"nome":"Distribuição","uso_L":38,"ocupacao_%":55}}],"gerado_em":"2025-10-01T09:30:00","responsavel":"Agente de Análise de Relatórios"}}}}"""
+        "human": "ROUTE=relatorio_mensal\nPERGUNTA_ORIGINAL=Quais são as sugestões para otimizar o estoque com base nos dados fornecidos?\nPERSONA={PERSONA_SISTEMA}\nCLARIFY=",
+        "ai": """{
+            "sugestoes": [
+                "Aumentar as entradas de produtos que têm alta demanda.",
+                "Reduzir as saídas de produtos que estão com baixa rotatividade.",
+                "Implementar um sistema de monitoramento de estoque em tempo real."
+            ]
+        }"""
     },
-
-    # 2) Comparar relatórios mensais
     {
-        "human": "ROUTE=relatorio_mensal\nPERGUNTA_ORIGINAL=Comparar relatórios de 2025-09 e 2025-10\nPERSONA={PERSONA_SISTEMA}\nCLARIFY=",
-        "ai": """{{"dominio":"analise_relatorios","intencao":"comparar_relatorios_mensais","resposta_agente":"Comparação concluída entre os meses 2025-09 e 2025-10: houve aumento de 85 L em entradas e queda de 40 L em saídas.","recomendacao":"Quer que eu apresente o gráfico de variação mês a mês?","documento":{{"comparacao_id":"cmp_2025_09_10","periodos":["2025-09","2025-10"],"diferencas":{{"entradas_L":85,"saidas_L":-40,"ocupacao_var_%":3.5}},"observacoes":["Aumento nas entradas devido a reabastecimento da linha de Produção.","Redução nas saídas por desaceleração da demanda em Distribuição."],"gerado_em":"2025-10-15T11:10:00","responsavel":"Agente de Análise de Relatórios"}}}}"""
+        "human": "ROUTE=relatorio_mensal\nPERGUNTA_ORIGINAL=Gere um relatório de movimentação de estoque de outubro de 2025 para a Indústria 1.\nPERSONA={PERSONA_SISTEMA}\nCLARIFY=",
+        "ai": """{
+            "status": "ok",
+            "relatorio": {
+                "mes_referencia": "Outubro 2025",
+                "gerado_em": "2025-10-31T12:00:00Z",
+                "origem": "Chatbot sob demanda",
+                "resumo_geral": {
+                    "entradas_total_volume": 4523,
+                    "saidas_total_volume": 1666,
+                    "saldo_final_volume": 2857,
+                    "porcentagem_ocupacao_media": 21.83
+                },
+                "resposta": "📊 RELATÓRIO MENSAL — Outubro de 2025\\n──────────────────────────────────────\\n\\n📈 RESUMO DE MOVIMENTAÇÃO\\n- Entradas totais: **4523 unidades**  \\n- Saídas totais: **1666 unidades**  \\n- Saldo final: **2857 unidades**  \\n- Ocupação média do estoque: **21.83%**\\n\\nDurante o mês de outubro, observou-se uma movimentação consistente de produtos, refletindo a demanda regular e a reposição estratégica de itens de alta rotatividade. O saldo final garante uma boa disponibilidade para atender às operações dos próximos períodos.\\n\\n🧮 ANÁLISE DE FLUXO\\n- Entradas: Predominantemente matérias-primas críticas para produção, com destaque para os setores 1 e 2.  \\n- Saídas: Consumo e distribuição de produtos acabados e semiacabados, com picos em datas específicas devido à demanda sazonal.  \\n- Saldo: Estoque equilibrado, porém com baixa ocupação relativa, indicando espaço disponível para otimização logística.\\n\\n🏷️ DESEMPENHO POR SETOR\\n- Setor 1: Alta rotatividade, estoque otimizado, sem gargalos.  \\n- Setor 2: Movimentação moderada, oportunidades de reorganização.  \\n- Setor 3: Baixa ocupação, espaço ocioso significativo, sugere revisão de alocação.\\n\\n RECOMENDAÇÕES\\n────────────────\\n- **Otimizar o layout do estoque:** Consolidar itens de alta rotatividade próximos às áreas de saída.  \\n- **Investigar causas da baixa ocupação:** Analisar produtos com baixa entrada ou saída, sazonalidade e gargalos operacionais.  \\n- **Aproveitar espaço ocioso:** Redistribuir produtos ou armazenar itens estratégicos, reduzindo custos com áreas subutilizadas.  \\n- **Monitoramento contínuo:** Criar indicadores de acompanhamento da ocupação e rotatividade do estoque.  \\n- **Planejamento de compras e vendas:** Ajustar pedidos e produção conforme análise detalhada do fluxo.  \\n- **Treinamento e processos:** Capacitar equipe para reorganização eficiente e melhoria contínua de processos.  \\n- **Relatórios complementares:** Integrar análises mensais de estoque com métricas financeiras e de vendas para decisões estratégicas.\\n\\n💡 CONCLUSÃO\\nO mês de outubro apresentou movimentação estável, saldo positivo e oportunidades claras de otimização de espaço. As ações recomendadas visam maximizar a eficiência operacional, reduzir custos e preparar o estoque para períodos de maior demanda.",
+                "recomendacao": [
+                    "Otimizar o layout do estoque",
+                    "Investigar causas da baixa ocupação",
+                    "Aproveitar espaço ocioso",
+                    "Monitoramento contínuo",
+                    "Planejamento de compras e vendas",
+                    "Treinamento e processos",
+                    "Relatórios complementares"
+                ]
+            }
+        }"""
     },
-
-    # ======================================================
-    # ANALISE_ESTOQUE
-    # ======================================================
-
-    # 1) Consultar níveis de estoque
     {
-        "human": "ROUTE=analise_estoque\nPERGUNTA_ORIGINAL=Consultar níveis de estoque do produto Álcool Etílico\nPERSONA={PERSONA_SISTEMA}\nCLARIFY=",
-        "ai": """{{"dominio":"analise_estoque","intencao":"consultar_nivel","resposta_agente":"Os níveis de estoque estão dentro da faixa segura. O produto 'Álcool Etílico' apresenta 62% da capacidade ocupada.","recomendacao":"Quer que eu verifique o histórico de consumo desse item?","documento":{{"produto":"Álcool Etílico","nivel_atual_%":62,"capacidade_total_L":1200,"estoque_atual_L":744,"status":"seguro","ultima_atualizacao":"2025-10-25T08:20:00"}}}}"""
+    "human": "ROUTE=relatorio_mensal\nPERGUNTA_ORIGINAL=Compare os relatórios de setembro e outubro de 2025.\nPERSONA={PERSONA_SISTEMA}\nCLARIFY=",
+    "ai": """{
+        "status": "ok",
+        "relatorio": {
+        "mes_referencia": "Comparativo Setembro-Outubro 2025",
+        "gerado_em": "2025-10-31T12:00:00Z",
+        "origem": "Chatbot sob demanda",
+        "resumo_geral": {
+            "entradas_total_volume": 200,
+            "saidas_total_volume": 150,
+            "saldo_final_volume": 350,
+            "porcentagem_ocupacao_media": 5.0
+        },
+        "resposta": "📊 RELATÓRIO COMPARATIVO — Setembro x Outubro 2025\\n──────────────────────────────────────\\n\\n📈 RESUMO DE MOVIMENTAÇÃO\\n- Entradas totais: **200 unidades** \\n- Saídas totais: **150 unidades** \\n- Saldo final: **350 unidades** \\n- Ocupação média do estoque: **5%**\\n\\nNo comparativo entre os meses, observa-se uma diferença significativa no saldo final, indicando que o estoque cresceu em outubro em relação a setembro. A movimentação de entradas e saídas reflete ajustes na reposição e distribuição de produtos durante o período.\\n\\n🧮 ANÁLISE DE FLUXO\\n- Entradas: Ajustadas conforme a demanda do período anterior, com leve aumento de reposição. \\n- Saídas: Redução moderada em outubro, sugerindo menor consumo ou distribuição. \\n- Saldo: Crescimento positivo, garantindo disponibilidade suficiente para operações futuras.\\n\\n🏷️ DESEMPENHO POR MÊS\\n- Setembro: Estoque estável, ocupação baixa, fluxo regular de entradas e saídas. \\n- Outubro: Estoque levemente maior, indicando planejamento estratégico para atender demanda futura.\\n\\n RECOMENDAÇÕES\\n────────────────\\n- **Monitorar entradas e saídas:** Ajustar conforme padrão de consumo mensal. \\n- **Planejar estoques futuros:** Considerar sazonalidade e crescimento do saldo. \\n- **Otimizar ocupação:** Avaliar utilização de espaço ocioso e reorganizar itens. \\n- **Integração com relatórios anteriores:** Acompanhar tendências de movimentação para decisões estratégicas.\\n\\n💡 CONCLUSÃO\\nO comparativo evidencia crescimento do saldo em outubro, manutenção de entradas e saídas equilibradas, e espaço disponível para otimização logística, garantindo preparo para demandas futuras.",
+        "recomendacao": [
+            "Monitorar entradas e saídas",
+            "Planejar estoques futuros",
+            "Otimizar ocupação",
+            "Integração com relatórios anteriores"
+        ]
+        }
+    }"""
     },
-
+    {
+        "human": "ROUTE=relatorio_mensal\nPERGUNTA_ORIGINAL=Consulte o relatório mensal de setembro de 2025.\nPERSONA={PERSONA_SISTEMA}\nCLARIFY=",
+        "ai": """{
+            "status": "ok",
+            "mensagem": "Relatório mensal encontrado para 2025-09.",
+            "relatorio": {
+                "mes_referencia": "Outubro 2025",
+                "gerado_em": "2025-10-31T12:00:00Z",
+                "origem": "Chatbot sob demanda",
+                "resumo_geral": {
+                    "entradas_total_volume": 4523,
+                    "saidas_total_volume": 1666,
+                    "saldo_final_volume": 2857,
+                    "porcentagem_ocupacao_media": 21.83
+                },
+                "resposta": "📊 RELATÓRIO MENSAL — Outubro de 2025\\n──────────────────────────────────────\\n\\n📈 RESUMO DE MOVIMENTAÇÃO\\n- Entradas totais: **4523 unidades**  \\n- Saídas totais: **1666 unidades**  \\n- Saldo final: **2857 unidades**  \\n- Ocupação média do estoque: **21.83%**\\n\\nDurante o mês de outubro, observou-se uma movimentação consistente de produtos, refletindo a demanda regular e a reposição estratégica de itens de alta rotatividade. O saldo final garante uma boa disponibilidade para atender às operações dos próximos períodos.\\n\\n🧮 ANÁLISE DE FLUXO\\n- Entradas: Predominantemente matérias-primas críticas para produção, com destaque para os setores 1 e 2.  \\n- Saídas: Consumo e distribuição de produtos acabados e semiacabados, com picos em datas específicas devido à demanda sazonal.  \\n- Saldo: Estoque equilibrado, porém com baixa ocupação relativa, indicando espaço disponível para otimização logística.\\n\\n🏷️ DESEMPENHO POR SETOR\\n- Setor 1: Alta rotatividade, estoque otimizado, sem gargalos.  \\n- Setor 2: Movimentação moderada, oportunidades de reorganização.  \\n- Setor 3: Baixa ocupação, espaço ocioso significativo, sugere revisão de alocação.\\n\\n RECOMENDAÇÕES\\n────────────────\\n- **Otimizar o layout do estoque:** Consolidar itens de alta rotatividade próximos às áreas de saída.  \\n- **Investigar causas da baixa ocupação:** Analisar produtos com baixa entrada ou saída, sazonalidade e gargalos operacionais.  \\n- **Aproveitar espaço ocioso:** Redistribuir produtos ou armazenar itens estratégicos, reduzindo custos com áreas subutilizadas.  \\n- **Monitoramento contínuo:** Criar indicadores de acompanhamento da ocupação e rotatividade do estoque.  \\n- **Planejamento de compras e vendas:** Ajustar pedidos e produção conforme análise detalhada do fluxo.  \\n- **Treinamento e processos:** Capacitar equipe para reorganização eficiente e melhoria contínua de processos.  \\n- **Relatórios complementares:** Integrar análises mensais de estoque com métricas financeiras e de vendas para decisões estratégicas.\\n\\n💡 CONCLUSÃO\\nO mês de outubro apresentou movimentação estável, saldo positivo e oportunidades claras de otimização de espaço. As ações recomendadas visam maximizar a eficiência operacional, reduzir custos e preparar o estoque para períodos de maior demanda.",
+                "recomendacao": [
+                    "Otimizar o layout do estoque",
+                    "Investigar causas da baixa ocupação",
+                    "Aproveitar espaço ocioso",
+                    "Monitoramento contínuo",
+                    "Planejamento de compras e vendas",
+                    "Treinamento e processos",
+                    "Relatórios complementares"
+                ]
+            }
+        }"""
+    },
     # 2) Detectar anomalias ou inconsistências
     {
         "human": "ROUTE=analise_estoque\nPERGUNTA_ORIGINAL=Detectar anomalias no setor de Armazenagem\nPERSONA={PERSONA_SISTEMA}\nCLARIFY=",
