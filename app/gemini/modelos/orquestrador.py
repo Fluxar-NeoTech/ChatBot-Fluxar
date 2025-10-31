@@ -170,11 +170,8 @@ def chamada_agente(pergunta: str, user_id: int):
             "chat_history": get_session_history(user_id)
         }, config=session_config)
 
-        # Trata a resposta final
 
-        # OUTPUT GUARDRAIL — garante que a resposta final seja segura
-        resposta_final_segura = aplicar_output_guardrail(resposta_orquestrada)
-        return resposta_final_segura
+        return resposta_orquestrada
 
 
 
@@ -205,9 +202,7 @@ def chamada_agente(pergunta: str, user_id: int):
         }, config=session_config)
 
 
-        # OUTPUT GUARDRAIL — garante que a resposta final seja segura
-        resposta_final_segura = aplicar_output_guardrail(resposta_orquestrada)
-        return resposta_final_segura
+        return resposta_orquestrada
 
 
 
