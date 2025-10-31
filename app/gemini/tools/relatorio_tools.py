@@ -25,7 +25,6 @@ class SugestoesEstoqueArgs(BaseModel):
     porcentagem_ocupacao_media: float = Field(..., description="Porcentagem média de ocupação do estoque")
     user_id: str = Field(..., description="ID do usuário para sessão do agente")  # adiciona user_id
 
-@tool("gerar_sugestoes_estoque", args_schema=SugestoesEstoqueArgs)
 def gerar_sugestoes_estoque(
     entradas_total_volume: float,
     saidas_total_volume: float,
@@ -49,14 +48,6 @@ def gerar_sugestoes_estoque(
 
     # Chama a função de agente já existente
     respostas = chamada_agente(prompt, user_id=user_id)
-
-    # Se o agente retornar uma string simples, transforma em lista
-    if isinstance(respostas, str):
-        respostas = [respostas]
-
-    # Se retornar dict com 'sugestoes', usa
-    elif isinstance(respostas, dict):
-        respostas = respostas.get("sugestoes", [])
 
     return {"sugestoes": respostas}
 
@@ -267,4 +258,4 @@ def consulta_relatorio_mensal(
 
 
 
-TOOLS_RELATORIO = [gerar_sugestoes_estoque, gerar_relatorio_periodo, comparar_relatorios_mensais, consulta_relatorio_mensal]
+TOOLS_RELATORIO = [ gerar_relatorio_periodo, comparar_relatorios_mensais, consulta_relatorio_mensal]

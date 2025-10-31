@@ -9,8 +9,6 @@ router = APIRouter(prefix="/session")
 @router.post("/{user_id}")
 async def enviar_resposta(user_id: int = Path(...,title="ID do Usuário", description="Identificador único do usuário"), body: PerguntaAnalista = Body(description="Pergunta enviada pelo usuário")):
     try:
-        resumo_geral, df_completo, mes_ref = gerar_relatorio_resumo()
-        gerar_relatorio_mensal(resumo_geral, df_completo, mes_ref, user_id)
         
         resposta = chamada_agente(body.pergunta, user_id)  
         return JSONResponse(

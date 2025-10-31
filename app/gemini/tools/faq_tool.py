@@ -3,8 +3,10 @@ from langchain_community.document_loaders import TextLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_google_genai import GoogleGenerativeAIEmbeddings
 from pymongo import MongoClient
+from dotenv import load_dotenv
 
 MD_PATH = "app/gemini/docs/FAQ_Fluxar.md"
+load_dotenv()
 
 # 🔹 conexão com o MongoDB
 client = MongoClient(os.getenv("MONGO_URI"))
@@ -57,11 +59,11 @@ def buscar_no_mongo(question: str, k=6):
             "$vectorSearch": {
                 "queryVector": query_vector,
                 "path": "embedding",
-                "numCandidates": 50,
-                "limit": k
+                "numCandidates": 50  # número de candidatos para ranking
             }
         },
-        {"$project": {"text": 1, "score": {"$meta": "vectorSearchScore"}}}
+        {"$project": {"text": 1, "score": {"$meta": "vectorSearchScore"}}},
+        {"$limit": k}  # limite final de resultados
     ]
 
     results = list(collection.aggregate(pipeline))

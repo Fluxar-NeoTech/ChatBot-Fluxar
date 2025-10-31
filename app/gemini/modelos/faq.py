@@ -50,7 +50,6 @@ prompt_faq = ChatPromptTemplate.from_messages([
      "CONTEXTO (trechos do documento):\n{context}\n\n"
      "Responda com base APENAS no CONTEXTO.")
 ])
-
 # Função para buscar contexto no MongoDB
 def get_faq_context(question: str) -> str:
     return buscar_no_mongo(question, k=6)

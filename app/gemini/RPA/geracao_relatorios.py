@@ -1,4 +1,6 @@
 import datetime
+
+from matplotlib.dates import relativedelta
 from app.gemini.tools.analista_tools import get_conn
 import pandas as pd
 import os
@@ -12,6 +14,9 @@ from app.gemini.tools.relatorio_tools import gerar_sugestoes_estoque
 load_dotenv() 
 mongo_uri = os.getenv("MONGO_URI")
 
+
+
+# Perguntar se é melhor pegar do banco direto ou chamar o chatbot
 
 # Busca no SQL os dados de movimentação de estoque filtrando pela data passada, industria, unidade, setor e produto
 def buscar_dados_movimentacao(inicio, fim):
@@ -34,6 +39,30 @@ def buscar_dados_movimentacao(inicio, fim):
 
 
 
+def deletar_relatorios_antigos(mes_ref, meses=6):
+    """
+    Deleta relatórios antigos no MongoDB.
+    :param mes_ref: mês atual do relatório, string "YYYY-MM"
+    :param meses: quantos meses anteriores deletar
+    """
+    client = MongoClient(mongo_uri)
+    db = client["ChatBot"]
+    col = db["relatorios_mensais"]
+
+    # Converte mes_ref para datetime
+    mes_atual = datetime.datetime.strptime(mes_ref, "%Y-%m")
+
+    meses_para_deletar = [
+        (mes_atual - relativedelta(months=i)).strftime("%Y-%m")
+        for i in range(1, meses+1)
+    ]
+
+    resultado = col.delete_many({"mes_referencia": {"$in": meses_para_deletar}})
+    client.close()
+    print(f"{resultado.deleted_count} relatórios antigos deletados: {meses_para_deletar}")
+
+
+    
 # Busca a industria, unidade, setor e média da porcentagem de ocupação filtrando pela data passada, industria, unidade e setor
 def buscar_dados_ocupacao(inicio, fim):
     conn = get_conn()
@@ -95,12 +124,12 @@ def gerar_relatorio_resumo():
 
     return resumo, df_completo, mes_ref
 
-resumo_geral, df_completo, mes_ref = gerar_relatorio_resumo()
-
-
 
 # Gera um relatório e guarda no mongo
 def gerar_relatorio_mensal(resumo_geral, df_completo, mes_ref, user_id):
+
+    deletar_relatorios_antigos(mes_ref)
+
 
     # Sugestões do agente chatbot
     sugestoes = gerar_sugestoes_estoque(
@@ -108,7 +137,7 @@ def gerar_relatorio_mensal(resumo_geral, df_completo, mes_ref, user_id):
         saidas_total_volume=resumo_geral["saidas_total_volume"],
         saldo_final_volume=resumo_geral["saldo_final_volume"],
         porcentagem_ocupacao_media=resumo_geral["porcentagem_ocupacao_media"],
-        user_id=user_id  # Passa o user_id
+        user_id=user_id
     )
     # 🔹 Documento completo para o MongoDB
     documento = {
@@ -116,7 +145,7 @@ def gerar_relatorio_mensal(resumo_geral, df_completo, mes_ref, user_id):
         "gerado_em": datetime.datetime.now().isoformat(),
         "origem": "RPA automático",
         "resumo_geral": resumo_geral,
-        "sugestoes_agente": sugestoes,
+        "sugestoes_agente": sugestoes["sugestoes"],
         "metricas_mensais": {
             "por_industria": df_completo.to_dict(orient="records")
         }
@@ -124,3 +153,7 @@ def gerar_relatorio_mensal(resumo_geral, df_completo, mes_ref, user_id):
 
     salvar_relatorio(documento)
     print(f"✅ Relatório de {mes_ref} salvo no MongoDB com sugestões do agente.")
+
+# resumo_geral, df_completo, mes_ref = gerar_relatorio_resumo()
+# gerar_relatorio_mensal(resumo_geral, df_completo, mes_ref, user_id)
+# descobrir como passar o user da rota para o agendador de tarefas

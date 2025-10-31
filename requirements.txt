@@ -11,5 +11,6 @@ psycopg
 pydantic==2.11.7
 uvicorn==0.37.0
 fastapi==0.119.0
+matplotlib
 
 
