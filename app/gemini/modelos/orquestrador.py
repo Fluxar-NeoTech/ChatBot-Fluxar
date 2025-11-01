@@ -14,6 +14,7 @@ from app.gemini.tools.analista_tools import TOOLS_ANALISE
 from app.gemini.modelos.base import today_local, example_prompt, llm, get_session_history
 from langchain_core.output_parsers import StrOutputParser
 from app.gemini.modelos.juiz import avaliar_resposta_agente
+from app.gemini.modelos.guardrail.guardrail_input import contem_palavra_proibida
 
 # --------------------------------------------------------------- Orquestrador -----------------------------------------------------------------------
 
@@ -149,7 +150,9 @@ prompt_orquestrador  = ChatPromptTemplate.from_messages([
     fewshots_orquestrador,
     MessagesPlaceholder(variable_name="chat_history"),
     ("human", "{input}"),
-]).partial(today_local=today_local.isoformat())
+]).partial(
+    today_local=today_local.isoformat()
+)
 
 # --------------------------------------------------------------- Chain ------------------------------------------------------------------------
 
@@ -164,33 +167,45 @@ chain_orquestrador = RunnableWithMessageHistory(
 
 def chamada_agente(pergunta: str, user_id: int):
     session_config = {"configurable": {"session_id": user_id}}
-   
-    resposta_agente_roteador = chain_roteador.invoke(
-        {"input": pergunta},
+    
+    # INPUT GUARDRAIL — bloqueia mensagens inadequadas do usuário
+    if contem_palavra_proibida(pergunta):
+        return "⚠️ Sua mensagem contém linguagem inadequada. Por favor, reformule antes de continuar."
+    
+    # Invoca o roteador para decidir o agente
+    resposta_roteador = chain_roteador.invoke(
+        {"input": pergunta, "user_id": user_id},
         config=session_config
     )
 
-    if "ROUTE=analise_estoque" in resposta_agente_roteador:
+    # Se não for rota válida, retorna direto
+    if "ROUTE=" not in resposta_roteador:
+        return resposta_roteador
+    elif "ROUTE=analise_estoque" in resposta_roteador:
         agente_escolhido = chain_analista
-    elif "ROUTE=relatorio_mensal" in resposta_agente_roteador:
+    elif "ROUTE=relatorio_mensal" in resposta_roteador:
         agente_escolhido = chain_relatorio
-    elif "ROUTE=faq" in resposta_agente_roteador:
-        pergunta_para_faq = resposta_agente_roteador.split("PERGUNTA_ORIGINAL=")[-1].split("\n")[0]
+    elif "ROUTE=faq" in resposta_roteador:
+        pergunta_para_faq = resposta_roteador.split("PERGUNTA_ORIGINAL=")[-1].split("\n")[0]
         return chain_faq.invoke({"input": pergunta_para_faq}, config=session_config)
     else:
         return "Não foi possível gerar a resposta esperada. Tente reformular sua pergunta."
 
+    # Invoca o agente escolhido
     resposta_agente = agente_escolhido.invoke(
-        {"input": resposta_agente_roteador},
+        {"input": resposta_roteador, "user_id": user_id},
         config=session_config
     )
   
+    # Avalia a resposta pelo juiz
     avaliacao_juiz = avaliar_resposta_agente(pergunta, resposta_agente)
 
     if "Aprovado" in avaliacao_juiz:
         resposta = resposta_agente.get("output", resposta_agente)
+        
         return chain_orquestrador.invoke({
             "input": resposta,
+            "user_id": user_id,
             "chat_history": get_session_history(user_id)
         }, config=session_config)
 
@@ -200,9 +215,12 @@ def chamada_agente(pergunta: str, user_id: int):
             f"{pergunta}\n\nO juiz reprovou a resposta_agente anterior. "
             f"Reformule a resposta_agente considerando o feedback do juiz:\n{feedback}"
         )
-        resposta_agente = agente_escolhido.invoke({"input": pergunta_nova}, config=session_config)
+
+        resposta_agente = agente_escolhido.invoke({"input": pergunta_nova, "user_id": user_id}, config=session_config)
         resposta = resposta_agente.get("output", resposta_agente)
+
         return chain_orquestrador.invoke({
             "input": resposta,
+            "user_id": user_id,
             "chat_history": get_session_history(user_id)
         }, config=session_config)

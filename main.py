@@ -29,7 +29,7 @@ while True:
         print("Encerrando conversa. ")
         break
     try:
-        resposta = chamada_agente(user_input, 2)
+        resposta = chamada_agente(user_input, 1)
         print(resposta)
         
     except Exception as e:

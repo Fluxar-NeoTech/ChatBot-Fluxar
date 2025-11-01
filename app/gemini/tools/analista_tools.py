@@ -2,23 +2,23 @@ import os
 from typing import Optional
 from dotenv import load_dotenv
 import psycopg
-from langchain.tools import tool  # ou "from langchain.tools import tool" dependendo da versão
+from langchain.tools import tool
 from pydantic import BaseModel, Field
-from typing import List, Dict, Any, Optional
 import datetime as _dt
 
 load_dotenv()
-
-DATABASE_URL = os.getenv("DATABASE_URL")  
+DATABASE_URL = os.getenv("DATABASE_URL")
 
 def get_conn():
     return psycopg.connect(DATABASE_URL)
 
 
-from pydantic import BaseModel, Field
-from typing import Optional
+# ==========================================================
+# TOOL 1 — Query Movimentações de Estoque
+# ==========================================================
 
 class QueryStockMovementsArgs(BaseModel):
+    user_id: int = Field(..., description="ID do usuário (funcionário logado)")
     text: Optional[str] = Field(None, description="Texto para buscar em nome do produto ou setor")
     movimentacao: Optional[str] = Field(None, description="Tipo de movimentação: 'E' (entrada) ou 'S' (saída)")
     date_local: Optional[str] = Field(None, description="Data específica local (YYYY-MM-DD)")
@@ -33,11 +33,12 @@ class QueryStockMovementsArgs(BaseModel):
 
 @tool("query_stock_movements", args_schema=QueryStockMovementsArgs)
 def query_stock_movements(
-    text: Optional[str] = None,              # texto de busca (produto ou setor)
-    movimentacao: Optional[str] = None,      # 'E' (entrada) ou 'S' (saída)
-    date_local: Optional[str] = None,        # uma data específica
-    date_from_local: Optional[str] = None,   # início do intervalo
-    date_to_local: Optional[str] = None,     # fim do intervalo
+    user_id: int,
+    text: Optional[str] = None,
+    movimentacao: Optional[str] = None,
+    date_local: Optional[str] = None,
+    date_from_local: Optional[str] = None,
+    date_to_local: Optional[str] = None,
     industria_id: Optional[int] = None,
     unidade_id: Optional[int] = None,
     setor_id: Optional[int] = None,
@@ -45,17 +46,8 @@ def query_stock_movements(
     limit: int = 20,
 ) -> dict:
     """
-    Consulta o histórico de movimentações de estoque (tabela historico_estoque).
-
-    Filtros opcionais:
-    - texto (busca por nome de produto ou setor)
-    - movimentação ('E' ou 'S')
-    - intervalo de datas locais (America/Sao_Paulo)
-    - indústria, unidade, setor, produto
-    
-    Ordenação:
-    - Se houver intervalo (date_from_local/date_to_local): ASC (cronológico)
-    - Caso contrário: DESC (mais recentes primeiro)
+    Consulta o histórico de movimentações de estoque (tabela historico_estoque)
+    apenas das unidades e setores do funcionário (user_id informado).
     """
     conn = get_conn()
     cur = conn.cursor()
@@ -64,17 +56,21 @@ def query_stock_movements(
         filters = []
         params = []
 
-        # Texto (busca por nome do produto ou setor)
+        # 🔹 Filtro por user_id (restrição de acesso)
+        filters.append("f.id = %s")
+        params.append(user_id)
+
+        # 🔹 Texto
         if text:
             filters.append("(p.nome ILIKE %s OR s.nome ILIKE %s)")
             params.extend([f"%{text}%", f"%{text}%"])
 
-        # Movimentação (Entrada/Saída)
+        # 🔹 Movimentação
         if movimentacao:
             filters.append("h.movimentacao = %s")
             params.append(movimentacao.upper())
 
-        # IDs
+        # 🔹 IDs diretos
         if industria_id:
             filters.append("h.industria_id = %s")
             params.append(industria_id)
@@ -88,7 +84,7 @@ def query_stock_movements(
             filters.append("h.produto_id = %s")
             params.append(produto_id)
 
-        # Datas
+        # 🔹 Datas
         if date_local:
             filters.append("h.data >= %s::date AND h.data < (%s::date + INTERVAL '1 day')")
             params.extend([date_local, date_local])
@@ -102,14 +98,14 @@ def query_stock_movements(
 
         where_clause = f"WHERE {' AND '.join(filters)}" if filters else ""
 
-        # Ordenação
+        # 🔹 Ordenação
         order_clause = (
             "ORDER BY h.data ASC"
             if date_from_local or date_to_local
             else "ORDER BY h.data DESC"
         )
 
-        # Consulta SQL principal
+        # 🔹 Consulta SQL
         query = f"""
             SELECT
                 h.id,
@@ -125,6 +121,7 @@ def query_stock_movements(
             JOIN setor s ON h.setor_id = s.id
             JOIN unidade u ON h.unidade_id = u.id
             JOIN industria i ON h.industria_id = i.id
+            JOIN funcionario f ON f.setor_id = s.id AND f.unidade_id = u.id
             {where_clause}
             {order_clause}
             LIMIT {limit};
@@ -133,25 +130,25 @@ def query_stock_movements(
         cur.execute(query, tuple(params))
         rows = cur.fetchall()
 
-        results = []
-        for row in rows:
-            results.append({
-                "id": row[0],
-                "data_local": row[1].isoformat() if row[1] else None,
-                "movimentacao": "Entrada" if row[2] == 'E' else "Saída",
-                "volume_movimentado": float(row[3]),
-                "produto": row[4],
-                "setor": row[5],
-                "unidade": row[6],
-                "industria": row[7],
-            })
+        results = [
+            {
+                "id": r[0],
+                "data_local": r[1].isoformat() if r[1] else None,
+                "movimentacao": "Entrada" if r[2] == 'E' else "Saída",
+                "volume_movimentado": float(r[3]),
+                "produto": r[4],
+                "setor": r[5],
+                "unidade": r[6],
+                "industria": r[7],
+            }
+            for r in rows
+        ]
 
         return {"status": "ok", "results": results}
 
     except Exception as e:
         conn.rollback()
-        conn.rollback()
-        print("Erro ao executar query_stock_movements:", e)  # 🔹 print do erro real
+        print("Erro ao executar query_stock_movements:", e)
         return {"status": "error", "message": str(e)}
 
     finally:
@@ -159,17 +156,20 @@ def query_stock_movements(
         conn.close()
 
 
+# ==========================================================
+# TOOL 2 — Query Descrição de Setor
+# ==========================================================
+
 class QuerySetorDescricaoArgs(BaseModel):
-    nome_setor: str = Field(..., description="Nome do setor a ser consultado (busca parcial, sem distinção de maiúsculas/minúsculas)")
+    user_id: int = Field(..., description="ID do usuário (funcionário logado)")
+    nome_setor: str = Field(..., description="Nome do setor a ser consultado")
 
 
 @tool("query_setor_descricao", args_schema=QuerySetorDescricaoArgs)
-def query_setor_descricao(nome_setor: str) -> dict:
+def query_setor_descricao(user_id: int, nome_setor: str) -> dict:
     """
-    Consulta a descrição de um setor com base em seu nome.
-
-    Permite busca parcial (ILIKE) e retorna todos os setores encontrados 
-    que contenham o texto informado no nome.
+    Retorna a descrição de setores cujo nome contenha o texto informado,
+    **somente** se o funcionário (user_id) tiver acesso a esse setor.
     """
     conn = get_conn()
     cur = conn.cursor()
@@ -177,25 +177,24 @@ def query_setor_descricao(nome_setor: str) -> dict:
     try:
         query = """
             SELECT 
-                id,
-                nome,
-                descricao
-            FROM setor
-            WHERE nome ILIKE %s;
+                s.id,
+                s.nome,
+                s.descricao
+            FROM setor s
+            JOIN funcionario f ON f.setor_id = s.id
+            WHERE f.id = %s
+              AND s.nome ILIKE %s;
         """
-        cur.execute(query, (f"%{nome_setor}%",))
+        cur.execute(query, (user_id, f"%{nome_setor}%"))
         rows = cur.fetchall()
 
         if not rows:
             return {"status": "nra", "message": f"Nenhum setor encontrado com nome semelhante a '{nome_setor}'."}
 
-        results = []
-        for row in rows:
-            results.append({
-                "id": row[0],
-                "nome": row[1],
-                "descricao": row[2] or "(sem descrição)"
-            })
+        results = [
+            {"id": r[0], "nome": r[1], "descricao": r[2] or "(sem descrição)"}
+            for r in rows
+        ]
 
         return {"status": "ok", "resultados": results}
 
@@ -210,5 +209,3 @@ def query_setor_descricao(nome_setor: str) -> dict:
 
 
 TOOLS_ANALISE = [query_stock_movements, query_setor_descricao]
-
-

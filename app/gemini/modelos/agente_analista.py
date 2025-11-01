@@ -98,7 +98,9 @@ prompt_analise = ChatPromptTemplate.from_messages([
     MessagesPlaceholder("chat_history"),   # histórico da conversa
     ("human", "{input}"),                  # entrada do usuário
     MessagesPlaceholder("agent_scratchpad")# para chamadas de ferramentas
-]).partial(today_local=today_local.isoformat())
+]).partial(
+    today_local=today_local.isoformat()
+)
 
 
 # tool calling
