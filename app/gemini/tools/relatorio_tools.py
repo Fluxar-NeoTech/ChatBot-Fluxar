@@ -23,7 +23,7 @@ class SugestoesEstoqueArgs(BaseModel):
     saidas_total_volume: float
     saldo_final_volume: float
     porcentagem_ocupacao_media: float
-    user_id: str
+    user_id: int
 
 @tool("gerar_sugestoes_estoque", args_schema=SugestoesEstoqueArgs)
 def gerar_sugestoes_estoque(
@@ -31,7 +31,7 @@ def gerar_sugestoes_estoque(
     saidas_total_volume: float,
     saldo_final_volume: float,
     porcentagem_ocupacao_media: float,
-    user_id: str
+    user_id: int
 ) -> Dict[str, any]:
     """
     Gera até 3 sugestões de melhoria e otimização do estoque.
@@ -148,23 +148,30 @@ def gerar_relatorio_periodo(inicio: str, fim: str, user_id: int,
         else:
             status_op = "Baixo_Desempenho"
 
-        documento = {
-            "_id": ObjectId(),
-            "mes_referencia": f"{inicio} a {fim}",
-            "gerado_em": datetime.datetime.utcnow().isoformat() + "Z",
-            "origem": "ChatBot sob demanda",
-            "user_id": user_id,
-            "resumo_geral": {
-                "entradas_total_volume": entradas,
-                "saidas_total_volume": saidas,
-                "saldo_final_volume": saldo,
-                "porcentagem_ocupacao_media": ocupacao,
-                "sugestoes_agente": None,
-                "status_operacional": status_op
+        if df_mov.empty and df_ocp.empty:
+            return {
+                "status": "vazio",
+                "mes_referencia": f"{inicio} a {fim}",
+                "user_id": user_id,
+                "mensagem": "Não há dados disponíveis para este período."
             }
-        }
-
-        return documento
+        else:
+            return {
+                "status": "sucesso",
+                "_id": ObjectId(),
+                "mes_referencia": f"{inicio} a {fim}",
+                "gerado_em": datetime.datetime.utcnow().isoformat() + "Z",
+                "origem": "ChatBot sob demanda",
+                "user_id": user_id,
+                "resumo_geral": {
+                    "entradas_total_volume": entradas,
+                    "saidas_total_volume": saidas,
+                    "saldo_final_volume": saldo,
+                    "porcentagem_ocupacao_media": ocupacao,
+                    "sugestoes_agente": None,
+                    "status_operacional": status_op
+                }
+            }
 
     except Exception as e:
         print("Erro ao gerar relatório sob demanda:", e)
@@ -178,40 +185,45 @@ def gerar_relatorio_periodo(inicio: str, fim: str, user_id: int,
 class CompararRelatoriosMensaisArgs(BaseModel):
     relatorio_a: dict
     relatorio_b: dict
-
-
 @tool("comparar_relatorios_mensais", args_schema=CompararRelatoriosMensaisArgs)
 def comparar_relatorios_mensais(relatorio_a: dict, relatorio_b: dict) -> dict:
     """
-    Compara dois relatórios no formato padrão (sem buscar no banco).
-    Retorna as diferenças.
+    Compara dois relatórios no formato padrão (dicionários retornados por consulta_relatorio_mensal).
+    Retorna um documento com as diferenças.
     """
     try:
-        a = relatorio_a["resumo_geral"]
-        b = relatorio_b["resumo_geral"]
+        a = relatorio_a.get("resumo_geral", {})
+        b = relatorio_b.get("resumo_geral", {})
 
         dif = {
-            "entradas_total_volume": round(b["entradas_total_volume"] - a["entradas_total_volume"], 2),
-            "saidas_total_volume": round(b["saidas_total_volume"] - a["saidas_total_volume"], 2),
-            "saldo_final_volume": round(b["saldo_final_volume"] - a["saldo_final_volume"], 2),
-            "porcentagem_ocupacao_media": round(b["porcentagem_ocupacao_media"] - a["porcentagem_ocupacao_media"], 2),
+            "entradas_total_volume": round(b.get("entradas_total_volume", 0) - a.get("entradas_total_volume", 0), 2),
+            "saidas_total_volume": round(b.get("saidas_total_volume", 0) - a.get("saidas_total_volume", 0), 2),
+            "saldo_final_volume": round(b.get("saldo_final_volume", 0) - a.get("saldo_final_volume", 0), 2),
+            "porcentagem_ocupacao_media": round(b.get("porcentagem_ocupacao_media", 0) - a.get("porcentagem_ocupacao_media", 0), 2),
         }
 
-        documento = {
-            "_id": ObjectId(),
-            "mes_referencia": f"Comparação: {relatorio_a['mes_referencia']} → {relatorio_b['mes_referencia']}",
-            "gerado_em": datetime.datetime.utcnow().isoformat() + "Z",
-            "origem": "ChatBot sob demanda",
-            "user_id": None,
-            "resumo_geral": {
-                **dif,
-                "sugestoes_agente": "Analisar variações de desempenho entre os períodos.",
-                "status_operacional": "Comparativo"
+        if relatorio_a.get("status") == "vazio" or relatorio_b.get("status") == "vazio":
+            return {
+                "status": "vazio",
+                "mensagem": "Não é possível comparar: um dos relatórios não existe.",
+                "relatorio_a": relatorio_a,
+                "relatorio_b": relatorio_b
             }
-        }
+        else:
+            documento = {
+                "_id": ObjectId(),
+                "mes_referencia": f"Comparação: {relatorio_a.get('mes_referencia')} → {relatorio_b.get('mes_referencia')}",
+                "gerado_em": datetime.datetime.utcnow().isoformat() + "Z",
+                "origem": "ChatBot sob demanda",
+                "user_id": relatorio_a.get("user_id"),  # opcional
+                "resumo_geral": {
+                    **dif,
+                    "sugestoes_agente": "Analisar variações de desempenho entre os períodos.",
+                    "status_operacional": "Comparativo"
+                }
+            }
 
-        return documento
-
+            return documento
     except Exception as e:
         print("Erro ao comparar relatórios:", e)
         return {"status": "error", "message": str(e)}
@@ -245,18 +257,25 @@ def consulta_relatorio_mensal(mes_referencia: str, user_id: int) -> dict:
         "user_id": user_id
     })
     client.close()
-    import pprint
-    pprint.pprint(relatorio_real)
+
+  
+    print(relatorio_real)
     print(mes_referencia, user_id, relatorio_real)
+
     if relatorio_real:
-        return relatorio_real
-    else:
         return {
+            "status": "sucesso",
             "mes_referencia": mes_referencia,
             "user_id": user_id,
-            "erro": f"Não há relatório cadastrado para {mes_referencia}."
+            "relatorio": relatorio_real
         }
-
+    else:
+        return {
+            "status": "vazio",
+            "mes_referencia": mes_referencia,
+            "user_id": user_id,
+            "mensagem": f"Não há relatório cadastrado para {mes_referencia}."
+        }
 
 # ------------------------------------------------------ Registro Geral -----------------------------------------------------
 TOOLS_RELATORIO = [

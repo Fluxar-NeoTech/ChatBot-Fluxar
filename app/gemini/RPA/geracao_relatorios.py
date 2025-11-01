@@ -111,7 +111,7 @@ def gerar_relatorio_resumo(user_id):
 # ==========================================
 # Criação e gravação do relatório
 # ==========================================
-def gerar_relatorio_mensal(resumo_geral, df_completo, mes_ref, user_id):
+def gerar_relatorio_mensal(resumo_geral, mes_ref, user_id):
     # Sugestões e status gerados pelo agente
     sugestoes, status_operacional = gerar_sugestoes_estoque(
         entradas_total_volume=resumo_geral["entradas_total_volume"],
