@@ -3,8 +3,11 @@ from langchain_community.document_loaders import TextLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_google_genai import GoogleGenerativeAIEmbeddings
 from pymongo import MongoClient
+from dotenv import load_dotenv
 
 MD_PATH = "app/gemini/docs/FAQ_Fluxar.md"
+load_dotenv()
+
 
 # 🔹 conexão com o MongoDB
 client = MongoClient(os.getenv("MONGO_URI"))
@@ -41,7 +44,7 @@ def gerar_e_salvar_embeddings():
         }
         collection.insert_one(doc)
 
-    print(f"{len(chunks)} embeddings salvos no MongoDB ✅")
+    print(f"{len(chunks)} embeddings salvos no MongoDB")
 
 
 def buscar_no_mongo(question: str, k=6):
@@ -55,15 +58,30 @@ def buscar_no_mongo(question: str, k=6):
     pipeline = [
         {
             "$vectorSearch": {
+                "index": "vector_index",
                 "queryVector": query_vector,
                 "path": "embedding",
-                "numCandidates": 50,
+                "numCandidates": 100,
                 "limit": k
             }
         },
-        {"$project": {"text": 1, "score": {"$meta": "vectorSearchScore"}}}
+        {
+            "$project": {
+                "_id": 0,
+                "text": 1,
+                "score": {"$meta": "vectorSearchScore"}
+            }
+        }
     ]
 
     results = list(collection.aggregate(pipeline))
-    context_text = "\n\n".join([r["text"] for r in results])
+
+    
+    context_text = "\n\n".join([
+    r.get("text", "")
+    for r in results
+    if r.get("text")  # garante que o texto existe
+    ])
+
+
     return context_text
