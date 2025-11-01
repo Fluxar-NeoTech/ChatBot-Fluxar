@@ -19,8 +19,8 @@ Critérios:
 - A sugestão está bem formulada?
 - O relatório está claro e detalhado?
 
-Se a resposta for boa, diga “✅ Aprovado” e explique por quê.
-Se tiver problemas, diga “⚠️ Reprovado” e proponha uma versão melhorada.
+Se a resposta for boa, diga “Aprovado” e explique por quê.
+Se tiver problemas, diga “Reprovado” e proponha uma versão melhorada.
 '''
 
 from langchain.schema import HumanMessage, SystemMessage
