@@ -36,6 +36,8 @@ Interpretar a PERGUNTA_ORIGINAL e executar raciocínio analítico baseado no ret
   - PERGUNTA_ORIGINAL=...
   - PERSONA=...  (use como diretriz de concisão/objetividade)
   - CLARIFY=...  (se preenchido, priorize responder esta dúvida antes de prosseguir)
+  - USER_ID=...
+
 
 ### REGRAS
 - Use o {chat_history} para resolver referências ao contexto recente.
@@ -43,6 +45,8 @@ Interpretar a PERGUNTA_ORIGINAL e executar raciocínio analítico baseado no ret
 - Não invente números; se um indicador não puder ser inferido, não o inclua e explique brevemente na `resposta`.
 - Quando pedir clarificação, use o campo `esclarecer` e deixe `resposta` com uma frase curta indicando necessidade.
 - Sempre preencha `dominio` e `intencao` corretamente.
+- Use {user_id} como o id do usuario que está na conversa e repasse esse valor para as tools.
+
 
 ### SAÍDA (JSON)
 Campos mínimos para enviar para o orquestrador:
@@ -65,20 +69,20 @@ Opcionais (incluir só se necessário):
 # shots
 shots_analista = [
     {
-        "human": "ROUTE=analise_estoque\nPERGUNTA_ORIGINAL=Verifique os produtos que estão há mais tempo no estoque.\nPERSONA={PERSONA_SISTEMA}\nCLARIFY=",
+        "human": "ROUTE=analise_estoque\nPERGUNTA_ORIGINAL=Verifique os produtos que estão há mais tempo no estoque.\nPERSONA={PERSONA_SISTEMA}\nUSER_ID={user_id}\nCLARIFY=",
         "ai": """{{"dominio":"analise","intencao":"consultar","resposta":"Os SKUs 451, 312 e 778 têm maior tempo médio em estoque (média 120 dias).","recomendacao":"Priorizar movimentação de estoque para outras unidades","indicadores":{"sku_451_dias":150,"sku_312_dias":130,"sku_778_dias":110}}}"""
     },
     {
-        "human": "ROUTE=analise_estoque\nPERGUNTA_ORIGINAL=Mostre a ocupação média dos setores neste mês.\nPERSONA={PERSONA_SISTEMA}\nCLARIFY=",
+        "human": "ROUTE=analise_estoque\nPERGUNTA_ORIGINAL=Mostre a ocupação média dos setores neste mês.\nPERSONA={PERSONA_SISTEMA}\nUSER_ID={user_id}\nCLARIFY=",
         "ai": """{{"dominio":"analise","intencao":"resumo","resposta":"A ocupação média geral foi de 72%, com destaque para o setor de frios (85%) e embalagens (68%).","recomendacao":"Avaliar expansão do setor de frios e redistribuição de produtos entre setores.","indicadores":{"ocupacao_media":72.4,"frios":85.0,"embalagens":68.2}}}"""
     },
     {
-        "human": "ROUTE=analise_estoque\nPERGUNTA_ORIGINAL=Quais lotes estão próximos da data de validade?\nPERSONA={PERSONA_SISTEMA}\nCLARIFY=",
+        "human": "ROUTE=analise_estoque\nPERGUNTA_ORIGINAL=Quais lotes estão próximos da data de validade?\nPERSONA={PERSONA_SISTEMA}\nUSER_ID={user_id}\nCLARIFY=",
         "ai": """{{"dominio":"analise","intencao":"alerta","resposta":"Foram encontrados 8 lotes com validade inferior a 15 dias, principalmente no setor de laticínios.","recomendacao":"Priorizar expedição imediata desses lotes ou movimentação para outras unidades","indicadores":{"lotes_em_risco":8,"media_validade_dias":12.4,"setor_critico":"laticínios"}}}"""
     },
     {
-        "human": "ROUTE=analise_estoque\nPERGUNTA_ORIGINAL=Mostre a descrição do setor de embalagem.\nPERSONA={PERSONA_SISTEMA}\nCLARIFY=",
-        "ai": """{{"dominio":"setor","intencao":"consultar","resposta":"O setor de Embalagem é responsável pela finalização dos produtos, incluindo empacotamento e rotulagem.","recomendacao":"Verificar se há integração entre o setor de embalagem e o de expedição para otimizar o fluxo logístico.","dados":{"setor":"Embalagem","descricao":"Responsável pela finalização dos produtos, empacotamento e rotulagem."}}}"""
+    "human": "ROUTE=analise_estoque\nPERGUNTA_ORIGINAL=Mostre a movimentação de estoque de outubro.\nPERSONA={PERSONA_SISTEMA}\nUSER_ID={user_id}\nCLARIFY=",
+    "ai": """{{"dominio":"estoque","intencao":"consultar","resposta":"No mês de outubro, o estoque teve entradas de 1250 m³ e saídas de 980 m³. Deseja saber por produto?","recomendacao":"Analisar a diferença entre entradas e saídas para ajustar o planejamento de compras e reduzir excesso de estoque.","dados":{"mes":"2025-10","entradas_total_volume":1250,"saidas_total_volume":980,"saldo_final_volume":270}}}"""
     }
 ]
 
@@ -98,9 +102,7 @@ prompt_analise = ChatPromptTemplate.from_messages([
     MessagesPlaceholder("chat_history"),   # histórico da conversa
     ("human", "{input}"),                  # entrada do usuário
     MessagesPlaceholder("agent_scratchpad")# para chamadas de ferramentas
-]).partial(
-    today_local=today_local.isoformat()
-)
+]).partial(today_local=today_local.isoformat())
 
 
 # tool calling

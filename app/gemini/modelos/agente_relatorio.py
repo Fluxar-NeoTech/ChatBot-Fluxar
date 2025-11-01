@@ -40,11 +40,13 @@ Gerar relatórios estruturados e narrativos detalhados baseados em dados operaci
   - PERGUNTA_ORIGINAL=...
   - PERSONA=...
   - CLARIFY=...
+  - USER_ID=...
 
 ### REGRAS
 - Use {chat_history} e documentos anexados pelo retriever como fontes.
 - Não invente valores; inclua fonte ou indique 'estimado'.
 - Entregue relatório em JSON seguindo este contrato.
+- Use {user_id} como o id do usuario que está na conversa e repasse esse valor para as tools.
 
 ### SAÍDA (JSON)
 - dominio          : "relatorio"
@@ -60,7 +62,7 @@ Gerar relatórios estruturados e narrativos detalhados baseados em dados operaci
 
 shots_relatorio = [
     {
-        "human": "ROUTE=relatorio_mensal\nPERGUNTA_ORIGINAL=Quais são as sugestões para otimizar o estoque com base nos dados fornecidos?\nPERSONA={PERSONA_SISTEMA}\nCLARIFY=",
+        "human": "ROUTE=relatorio_mensal\nPERGUNTA_ORIGINAL=Quais são as sugestões para otimizar o estoque com base nos dados fornecidos?\nPERSONA={PERSONA_SISTEMA}\nUSER_ID={user_id}\nCLARIFY=",
         "ai": """{
             "sugestoes": [
                 "Aumentar as entradas de produtos que têm alta demanda.",
@@ -70,7 +72,7 @@ shots_relatorio = [
         }"""
     },
     {
-        "human": "ROUTE=relatorio_mensal\nPERGUNTA_ORIGINAL=Gere um relatório de movimentação de estoque de outubro de 2025 para a Indústria 1.\nPERSONA={PERSONA_SISTEMA}\nCLARIFY=",
+        "human": "ROUTE=relatorio_mensal\nPERGUNTA_ORIGINAL=Gere um relatório de movimentação de estoque de outubro de 2025 para a Indústria 1.\nPERSONA={PERSONA_SISTEMA}\nUSER_ID={user_id}\nCLARIFY=",
         "ai": """{
             "status": "ok",
             "relatorio": {
@@ -83,7 +85,7 @@ shots_relatorio = [
                     "saldo_final_volume": 2857,
                     "porcentagem_ocupacao_media": 21.83
                 },
-                "resposta": "RELATÓRIO MENSAL — Outubro de 2025\\n──────────────────────────────────────\\n\\nRESUMO DE MOVIMENTAÇÃO\\n- Entradas totais: 4523 unidades  \\n- Saídas totais: 1666 unidades  \\n- Saldo final: 2857 unidades  \\n- Ocupação média do estoque: 21.83%\\n\\nDurante o mês de outubro, observou-se uma movimentação consistente de produtos, refletindo a demanda regular e a reposição estratégica de itens de alta rotatividade. O saldo final garante uma boa disponibilidade para atender às operações dos próximos períodos.\\n\\nANÁLISE DE FLUXO\\n- Entradas: Predominantemente matérias-primas críticas para produção, com destaque para os setores 1 e 2.  \\n- Saídas: Consumo e distribuição de produtos acabados e semiacabados, com picos em datas específicas devido à demanda sazonal.  \\n- Saldo: Estoque equilibrado, porém com baixa ocupação relativa, indicando espaço disponível para otimização logística.\\n\\nDESEMPENHO POR SETOR\\n- Setor 1: Alta rotatividade, estoque otimizado, sem gargalos.  \\n- Setor 2: Movimentação moderada, oportunidades de reorganização.  \\n- Setor 3: Baixa ocupação, espaço ocioso significativo, sugere revisão de alocação.\\n\\nRECOMENDAÇÕES\\n────────────────\\n- Otimizar o layout do estoque: Consolidar itens de alta rotatividade próximos às áreas de saída.  \\n- Investigar causas da baixa ocupação: Analisar produtos com baixa entrada ou saída, sazonalidade e gargalos operacionais.  \\n- Aproveitar espaço ocioso: Redistribuir produtos ou armazenar itens estratégicos, reduzindo custos com áreas subutilizadas.  \\n- Monitoramento contínuo: Criar indicadores de acompanhamento da ocupação e rotatividade do estoque.  \\n- Planejamento de produção e operações: Ajustar entradas e saídas conforme análise detalhada do fluxo.  \\n- Treinamento e processos: Capacitar equipe para reorganização eficiente e melhoria contínua de processos.  \\n- Relatórios complementares: Integrar análises mensais de estoque com métricas operacionais para decisões estratégicas.\\n\\nCONCLUSÃO\\nO mês de outubro apresentou movimentação estável, saldo positivo e oportunidades claras de otimização de espaço. As ações recomendadas visam maximizar a eficiência operacional e preparar o estoque para períodos de maior demanda.",
+                "resposta": "RELATÓRIO MENSAL — Outubro de 2025\\n──────────────────────────────────────\\n\\nRESUMO DE MOVIMENTAÇÃO\\n- Entradas totais: 4523 de volume  \\n- Saídas totais: 1666 de volume  \\n- Saldo final: 2857 de volume  \\n- Ocupação média do estoque: 21.83%\\n\\nDurante o mês de outubro, observou-se uma movimentação consistente de produtos, refletindo a demanda regular e a reposição estratégica de itens de alta rotatividade. O saldo final garante uma boa disponibilidade para atender às operações dos próximos períodos.\\n\\nANÁLISE DE FLUXO\\n- Entradas: Predominantemente matérias-primas críticas para produção, com destaque para os setores 1 e 2.  \\n- Saídas: Consumo e distribuição de produtos acabados e semiacabados, com picos em datas específicas devido à demanda sazonal.  \\n- Saldo: Estoque equilibrado, porém com baixa ocupação relativa, indicando espaço disponível para otimização logística.\\n\\nDESEMPENHO POR SETOR\\n- Setor 1: Alta rotatividade, estoque otimizado, sem gargalos.  \\n- Setor 2: Movimentação moderada, oportunidades de reorganização.  \\n- Setor 3: Baixa ocupação, espaço ocioso significativo, sugere revisão de alocação.\\n\\nRECOMENDAÇÕES\\n────────────────\\n- Otimizar o layout do estoque: Consolidar itens de alta rotatividade próximos às áreas de saída.  \\n- Investigar causas da baixa ocupação: Analisar produtos com baixa entrada ou saída, sazonalidade e gargalos operacionais.  \\n- Aproveitar espaço ocioso: Redistribuir produtos ou armazenar itens estratégicos, reduzindo custos com áreas subutilizadas.  \\n- Monitoramento contínuo: Criar indicadores de acompanhamento da ocupação e rotatividade do estoque.  \\n- Planejamento de produção e operações: Ajustar entradas e saídas conforme análise detalhada do fluxo.  \\n- Treinamento e processos: Capacitar equipe para reorganização eficiente e melhoria contínua de processos.  \\n- Relatórios complementares: Integrar análises mensais de estoque com métricas operacionais para decisões estratégicas.\\n\\nCONCLUSÃO\\nO mês de outubro apresentou movimentação estável, saldo positivo e oportunidades claras de otimização de espaço. As ações recomendadas visam maximizar a eficiência operacional e preparar o estoque para períodos de maior demanda.",
                 "recomendacao": [
                     "Otimizar o layout do estoque",
                     "Investigar causas da baixa ocupação",
@@ -122,7 +124,7 @@ agent_relatorio = create_tool_calling_agent(llm, TOOLS_RELATORIO, prompt_relator
 agent_executor_relatorio = AgentExecutor(
     agent=agent_relatorio,
     tools=TOOLS_RELATORIO,
-    verbose=False
+    verbose=False,
 )
 
 # chain
