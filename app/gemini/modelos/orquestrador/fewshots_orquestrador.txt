@@ -1,0 +1,92 @@
+[
+    {
+        "human": "ROUTE=relatorio_mensal\nPERGUNTA_ORIGINAL=Quais são as sugestões para otimizar o estoque com base nos dados fornecidos?\nPERSONA={PERSONA_SISTEMA}\nCLARIFY=",
+        "ai": {
+            "sugestoes": [
+                "Aumentar as entradas de produtos que têm alta demanda.",
+                "Reduzir as saídas de produtos que estão com baixa rotatividade.",
+                "Implementar um sistema de monitoramento de estoque em tempo real."
+            ]
+        }
+    },
+    {
+        "human": "ROUTE=relatorio_mensal\nPERGUNTA_ORIGINAL=Gere um relatório de movimentação de estoque de outubro de 2025.\nPERSONA={PERSONA_SISTEMA}\nCLARIFY=",
+        "ai": {
+            "status": "ok",
+            "relatorio": {
+                "mes_referencia": "Outubro 2025",
+                "resumo_geral": {
+                    "entradas_total_volume": 4523,
+                    "saidas_total_volume": 1666,
+                    "saldo_final_volume": 2857,
+                    "porcentagem_ocupacao_media": 21.83
+                },
+                "resposta": "RELATÓRIO MENSAL — Outubro de 2025\\nEntradas: 4523 | Saídas: 1666 | Saldo: 2857 | Ocupação média: 21.83%\\nRecomendações: Otimizar layout, Monitorar fluxo, Aproveitar espaço ocioso."
+            }
+        }
+    },
+    {
+        "human": "ROUTE=relatorio_mensal\nPERGUNTA_ORIGINAL=Compare os relatórios de setembro e outubro de 2025.\nPERSONA={PERSONA_SISTEMA}\nCLARIFY=",
+        "ai": {
+            "status": "ok",
+            "relatorio": {
+                "mes_referencia": "Comparativo Setembro-Outubro 2025",
+                "resumo_geral": {
+                    "entradas_total_volume": 200,
+                    "saidas_total_volume": 150,
+                    "saldo_final_volume": 350,
+                    "porcentagem_ocupacao_media": 5.0
+                },
+                "resposta": "RELATÓRIO COMPARATIVO — Setembro x Outubro 2025\\nEntradas: 200 | Saídas: 150 | Saldo: 350 | Ocupação média: 5%\\nRecomendações: Monitorar entradas e saídas, Planejar estoques futuros, Otimizar ocupação."
+            }
+        }
+    },
+    {
+        "human": "ROUTE=relatorio_mensal\nPERGUNTA_ORIGINAL=Consulte o relatório mensal de setembro de 2025.\nPERSONA={PERSONA_SISTEMA}\nCLARIFY=",
+        "ai": {
+            "status": "ok",
+            "relatorio": {
+                "mes_referencia": "Setembro 2025",
+                "resumo_geral": {
+                    "entradas_total_volume": 4523,
+                    "saidas_total_volume": 1666,
+                    "saldo_final_volume": 2857,
+                    "porcentagem_ocupacao_media": 21.83
+                },
+                "resposta": "RELATÓRIO MENSAL — Setembro de 2025\\nEntradas: 4523 | Saídas: 1666 | Saldo: 2857 | Ocupação média: 21.83%\\nRecomendações: Otimizar layout, Monitorar fluxo, Aproveitar espaço ocioso."
+            }
+        }
+    },
+    {
+        "human": "ROUTE=analise_estoque\nPERGUNTA_ORIGINAL=Detectar anomalias no setor de Armazenagem\nPERSONA={PERSONA_SISTEMA}\nCLARIFY=",
+        "ai": {
+            "dominio": "analise_estoque",
+            "intencao": "detectar_anomalias",
+            "resposta_agente": "Foram detectadas inconsistências no setor de Armazenagem: divergência de 48 L entre o estoque físico e o registrado.",
+            "recomendacao": "Deseja que eu gere um relatório detalhado da auditoria?",
+            "documento": {
+                "setor": "Armazenagem",
+                "divergencia_L": 48,
+                "tipo_inconsistencia": "estoque_fisico_vs_sistema",
+                "data_detectada": "2025-10-26T15:40:00",
+                "responsavel_verificacao": "Agente de Análise de Estoque"
+            }
+        }
+    },
+    {
+        "human": "ROUTE=faq\nPERGUNTA_ORIGINAL=qual o e-mail de suporte?\nPERSONA={PERSONA_SISTEMA}\nCLARIFY=",
+        "ai": {
+            "dominio": "faq",
+            "intencao": "consultar_faq",
+            "resposta_agente": "Você pode entrar em contato com nossa equipe de suporte pelo e-mail suporte2025.neo.tech@gmail.com.",
+            "recomendacao": "Se preferir, posso abrir um chamado diretamente no sistema para você.",
+            "documento": {
+                "tipo": "contato_suporte",
+                "email": "suporte2025.neo.tech@gmail.com",
+                "canal_alternativo": "formulário de suporte no portal Neo Tech",
+                "ultima_atualizacao": "2025-10-29T14:00:00",
+                "responsavel": "Atendimento Neo Tech"
+            }
+        }
+    }
+]

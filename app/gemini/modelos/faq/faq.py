@@ -1,6 +1,7 @@
 # ------------------------------------------------------------ Imports ----------------------------------------------------------------------------
 
 
+import os
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables.history import RunnableWithMessageHistory
 from langchain_core.prompts import (
@@ -19,27 +20,13 @@ from langchain_core.output_parsers import StrOutputParser
 # --------------------------------------------------------------- FAQ ----------------------------------------------------------------------
 
 
-# system prompt
-system_prompt_faq = ("system",
-"""
-### PAPEL
-Você deve responder perguntas sobre dúvidas SOMENTE com base no documento normativo oficial (trechos fornecidos em CONTEXTO).
-Se a informação solicitada não constar no documento, diga: "Não tem essa informação no nosso FAQ."
+# --------------------------- Carregar system prompt ---------------------------
+dir_atual = os.path.dirname(__file__)
+caminho_prompt = os.path.join(dir_atual, "system_prompt_faq.txt")
 
-## REGRAS
-- Seja breve, claro e educado.
-- Fale em linguagem simples, sem jargões técnicos ou referências a código/infra.
-- Quando fizer sentido, mencione a parte relevante (ex.: "Seção 6.2.1") se isso estiver explícito no trecho.
-- Não prometa funcionalidades futuras. Se o documento falar em roadmap, informe de modo conservador.
-- Em tópicos sensíveis, reforce a informação normativa (ex.: LGPD, impossibilidade de exclusão de lançamentos, não substituição de profissionais, suporte).
-
-### ENTRADA
-- ROUTE=faq
-- PERGUNTA_ORIGINAL=...
-- PERSONA=... (use como diretriz de concisão/objetividade)
-- CLARIFY=... (se preenchido, responda primeiro)
-"""
-)
+with open(caminho_prompt, "r", encoding="utf-8") as f:
+    system_prompt_text = f.read()
+system_prompt_faq = ("system", system_prompt_text)
 
 
 #prompt

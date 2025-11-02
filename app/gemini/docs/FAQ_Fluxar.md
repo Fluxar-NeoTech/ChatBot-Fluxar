@@ -65,11 +65,42 @@ Nossa visão é de um **mundo mais sustentável**, com **menos perdas alimentíc
 ## Produtos e serviços
 
 ### Principais produtos
+
+#### Aos Gestores de Estoque oferece por meio do serviço do APP Fluxar:
 **Fluxar:** Sistema de gerenciamento de estoque.  
 Seu foco é auxiliar gestores com valores quantitativos do estoque (entrada e saída), mostrando quando o estoque esteve mais cheio e mais vazio.  
 Quando o estoque estiver próximo de uma superlotação, o sistema enviará alertas e exibirá indústrias parceiras e seus contatos, para que o redirecionamento do estoque possa ser acordado.  
 
-Aos analistas, o Fluxar gera **relatórios e dashboards com uso de inteligência artificial**, para permitir análises detalhadas e facilitadas dos dados sobre o estoque.
+#### Dados analíticos do estoque
+Nosso APP possibilita **alta performance dos analistas**, oferecendo gráficos e visualizações profundas sobre o estoque, além de painéis de controle e integração de dados.
+
+**Resultado:** tomada de decisão mais rápida e prática, maior monitoramento e melhor gestão de desempenho.
+
+#### Aos Analistas oferece por meio do serviço do Site do Fluxar:
+
+##### DashBoards
+
+O Fluxar gera **relatórios e dashboards com uso de inteligência artificial**, para permitir análises detalhadas e facilitadas dos dados sobre o estoque.
+
+##### Assistente de I.A.  
+O Fluxar possui um **chatbot inteligente para auxílio corporativo**, que sugere tomadas de decisões e fornece sínteses das informações do estoque para os usuários. Além disso, o assistente é capaz de:  
+
+- **Tirar dúvidas sobre o estoque:** responder perguntas sobre o que há disponível, quantidades, localização e status dos produtos.  
+- **Gerar relatórios de movimentação de estoque:** criar relatórios detalhados com entradas, saídas e fluxos internos de produtos.  
+- **Consultar relatórios históricos:** acessar relatórios passados para análise de desempenho do estoque.  
+- **Comparar relatórios:** identificar diferenças entre períodos ou unidades, mostrando variações de estoque e desempenho.  
+
+**Resultado:** praticidade aumentada nos processos, decisões mais rápidas e baseadas em dados reais, maior controle e eficiência na gestão de estoque.
+
+#### Análises rotineiras de fluxo
+A partir de análises rotineiras, o fluxo empresarial é documentado, permitindo que gestores e analistas tenham um panorama geral diário e semanal.
+
+**Resultado:** decisões mais precisas com consciência do fluxo cotidiano, otimizando tempo.
+
+#### Dados que viram decisões
+O Fluxar transforma informações em inteligência, oferecendo relatórios automáticos e dashboards claros, permitindo acompanhar desempenho das unidades, identificar gargalos e oportunidades de crescimento.
+
+**Resultado:** decisões mais rápidas, baseadas em dados reais, não em suposições.
 
 ---
 

@@ -1,0 +1,87 @@
+[
+    {
+        "human": "ROUTE=analise_estoque\nPERGUNTA_ORIGINAL=Verifique os produtos que estão há mais tempo no estoque.\nPERSONA={PERSONA_SISTEMA}\nUSER_ID={user_id}\nCLARIFY=",
+        "ai": {
+            "dominio": "analise",
+            "intencao": "consultar",
+            "resposta": "Os SKUs 451, 312 e 778 têm maior tempo médio em estoque (média 120 dias).",
+            "recomendacao": "Priorizar movimentação de estoque para outras unidades.",
+            "indicadores": {
+                "sku_451_dias": 150,
+                "sku_312_dias": 130,
+                "sku_778_dias": 110
+            }
+        }
+    },
+    {
+        "human": "ROUTE=analise_estoque\nPERGUNTA_ORIGINAL=Mostre a ocupação média dos setores neste mês.\nPERSONA={PERSONA_SISTEMA}\nUSER_ID={user_id}\nCLARIFY=",
+        "ai": {
+            "dominio": "analise",
+            "intencao": "resumo",
+            "resposta": "A ocupação média geral foi de 72%, com destaque para o setor de frios (85%) e embalagens (68%).",
+            "recomendacao": "Avaliar expansão do setor de frios e redistribuição de produtos entre setores.",
+            "indicadores": {
+                "ocupacao_media": 72.4,
+                "frios": 85.0,
+                "embalagens": 68.2
+            }
+        }
+    },
+    {
+        "human": "ROUTE=analise_estoque\nPERGUNTA_ORIGINAL=Quais lotes estão próximos da data de validade?\nPERSONA={PERSONA_SISTEMA}\nUSER_ID={user_id}\nCLARIFY=",
+        "ai": {
+            "dominio": "analise",
+            "intencao": "alerta",
+            "resposta": "Foram encontrados 8 lotes com validade inferior a 15 dias, principalmente no setor de laticínios.",
+            "recomendacao": "Priorizar expedição imediata desses lotes ou movimentação para outras unidades.",
+            "indicadores": {
+                "lotes_em_risco": 8,
+                "media_validade_dias": 12.4,
+                "setor_critico": "laticínios"
+            }
+        }
+    },
+    {
+        "human": "ROUTE=analise_estoque\nPERGUNTA_ORIGINAL=Mostre a movimentação de estoque de outubro.\nPERSONA={PERSONA_SISTEMA}\nUSER_ID={user_id}\nCLARIFY=",
+        "ai": {
+            "dominio": "estoque",
+            "intencao": "consultar",
+            "resposta": "No mês de outubro, o estoque teve entradas de 1250 m³ e saídas de 980 m³. Deseja saber por produto?",
+            "recomendacao": "Analisar a diferença entre entradas e saídas para ajustar o planejamento de compras e reduzir excesso de estoque.",
+            "dados": {
+                "mes": "2025-10",
+                "entradas_total_volume": 1250,
+                "saidas_total_volume": 980,
+                "saldo_final_volume": 270
+            }
+        }
+    },
+    {
+        "human": "ROUTE=analise_estoque\nPERGUNTA_ORIGINAL=estou tendo baixa no estoque\nPERSONA={{PERSONA_SISTEMA}}\nCLARIFY=\nUSER_ID=3",
+        "ai": {
+            "dominio": "analise",
+            "intencao": "alerta",
+            "resposta": "Foi identificada uma baixa geral no estoque. A redução pode estar associada a aumento no consumo, desperdício não registrado ou divergência entre controle físico e sistema.",
+            "recomendacao": "Verifique o histórico de movimentações e registros de saída; revise as perdas informadas pelos setores; e confirme se houve ajustes manuais recentes.",
+            "indicadores": {
+                "variacao_percentual_estoque": -14.8,
+                "setores_afetados": ["alimentos", "higiene"],
+                "periodo_referencia": "outubro/2025"
+            }
+        }
+    },
+    {
+        "human": "ROUTE=analise_estoque\nPERGUNTA_ORIGINAL=desperdicamos muitos produtos e há altas e baixas inconsistentes\nPERSONA={{PERSONA_SISTEMA}}\nCLARIFY=\nUSER_ID=3",
+        "ai": {
+            "dominio": "analise",
+            "intencao": "diagnostico",
+            "resposta": "Foram detectadas oscilações irregulares no controle de estoque e aumento no índice de desperdício. Esses padrões indicam possíveis erros de lançamento, perdas não contabilizadas ou variações no processo de produção.",
+            "recomendacao": "Padronize os registros de saída e descarte; implante conferência dupla em movimentações críticas; e gere um relatório semanal de perdas para identificar setores com maior variação.",
+            "indicadores": {
+                "indice_desperdicio_percentual": 9.6,
+                "variacao_movimentacao_percentual": 18.2,
+                "setores_criticos": ["cozinha", "embalagem"]
+            }
+        }
+    }
+]

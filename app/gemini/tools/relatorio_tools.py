@@ -1,111 +1,61 @@
+# Importações de bibliotecas padrão e de terceiros
+import json
 from langchain.tools import tool
 from pymongo import MongoClient
 import psycopg
-from pydantic import BaseModel, Field
-from typing import List, Dict, Optional
-import datetime
+from pydantic import BaseModel
+from typing import Optional
+from datetime import datetime
 import pandas as pd
 import os
 from dotenv import load_dotenv
 from bson import ObjectId
+from bson import ObjectId
+from app.gemini.tools.analista_tools import get_conn
+
 
 load_dotenv()
 
+# Define conexões com MongoDB e PostgreSQL
 mongo_uri = os.getenv("MONGO_URI")
 DATABASE_URL = os.getenv("DATABASE_URL")
 
+# Função para criar conexão com PostgreSQL
 def get_conn():
     return psycopg.connect(DATABASE_URL)
 
-# ------------------------------------------------------ Sugestões -----------------------------------------------------
-class SugestoesEstoqueArgs(BaseModel):
-    entradas_total_volume: float
-    saidas_total_volume: float
-    saldo_final_volume: float
-    porcentagem_ocupacao_media: float
-    user_id: int
-
-@tool("gerar_sugestoes_estoque", args_schema=SugestoesEstoqueArgs)
-def gerar_sugestoes_estoque(
-    entradas_total_volume: float,
-    saidas_total_volume: float,
-    saldo_final_volume: float,
-    porcentagem_ocupacao_media: float,
-    user_id: int
-) -> Dict[str, any]:
-    """
-    Gera até 3 sugestões de melhoria e otimização do estoque.
-    Retorna no formato padrão de relatório, sem salvar no banco.
-    """
-    from app.gemini.modelos.orquestrador import chamada_agente
-
-    prompt = f"""
-    Com base nos seguintes dados do estoque:
-    Entradas: {entradas_total_volume}
-    Saídas: {saidas_total_volume}
-    Saldo: {saldo_final_volume}
-    Ocupação média: {porcentagem_ocupacao_media}%
-    
-    Gere até 3 sugestões de melhoria e otimização do estoque.
-    """
-
-    respostas = chamada_agente(prompt, user_id=user_id)
-
-    if isinstance(respostas, str):
-        sugestoes_texto = respostas
-    elif isinstance(respostas, dict) and "sugestoes" in respostas:
-        sugestoes_texto = "; ".join(respostas["sugestoes"])
-    elif isinstance(respostas, list):
-        sugestoes_texto = "; ".join(respostas)
-    else:
-        sugestoes_texto = "Nenhuma sugestão disponível."
-
-    documento = {
-        "_id": ObjectId(),
-        "mes_referencia": "sob demanda",
-        "gerado_em": datetime.datetime.utcnow().isoformat() + "Z",
-        "origem": "ChatBot sob demanda",
-        "user_id": user_id,
-        "resumo_geral": {
-            "entradas_total_volume": entradas_total_volume,
-            "saidas_total_volume": saidas_total_volume,
-            "saldo_final_volume": saldo_final_volume,
-            "porcentagem_ocupacao_media": porcentagem_ocupacao_media,
-            "sugestoes_agente": sugestoes_texto,
-            "status_operacional": None
-        }
-    }
-
-    return documento
 
 
 # ------------------------------------------------------ Relatórios -----------------------------------------------------
-class GerarRelatorioPeriodoArgs(BaseModel):
-    inicio: str
-    fim: str
+# Definição de modelo de entrada para gerar relatório mensal
+class GerarRelatorioMensalArgs(BaseModel):
     user_id: int
+    ano_mes: str  # formato "YYYY-MM"
     industria_id: Optional[int] = None
     unidade_id: Optional[int] = None
     setor_id: Optional[int] = None
 
-
-@tool("gerar_relatorio_periodo", args_schema=GerarRelatorioPeriodoArgs)
-def gerar_relatorio_periodo(inicio: str, fim: str, user_id: int,
+# Ferramenta para gerar relatório mensal usando LangChain
+@tool("gerar_relatorio_mensal", args_schema=GerarRelatorioMensalArgs)
+def gerar_relatorio_mensal(user_id: int, ano_mes: str, 
                             industria_id: Optional[int] = None,
                             unidade_id: Optional[int] = None,
                             setor_id: Optional[int] = None) -> dict:
     """
-    Gera relatório consolidado sob demanda e retorna no formato padrão (sem salvar no banco).
+    Gera relatório consolidado sob demanda e retorna no formato padrão.
+    Consulta os dados com base apenas no mês/ano (YYYY-MM).
     """
     conn = get_conn()
 
     try:
-        filters = [f"data >= '{inicio}' AND data < '{fim}'"]
-        if industria_id: filters.append(f"industria_id = {industria_id}")
-        if unidade_id: filters.append(f"unidade_id = {unidade_id}")
-        if setor_id: filters.append(f"setor_id = {setor_id}")
+        # Preparação dos filtros SQL com base nos parâmetros recebidos
+        filters = [f"he.data::text LIKE '{ano_mes}%'"]
+        if industria_id: filters.append(f"he.industria_id = {industria_id}")
+        if unidade_id: filters.append(f"he.unidade_id = {unidade_id}")
+        if setor_id: filters.append(f"he.setor_id = {setor_id}")
         where = " AND ".join(filters)
 
+        # Consulta de movimentos de estoque
         query_mov = f"""
             SELECT
                 he.industria_id,
@@ -121,6 +71,7 @@ def gerar_relatorio_periodo(inicio: str, fim: str, user_id: int,
         """
         df_mov = pd.read_sql(query_mov, conn)
 
+        # Consulta de ocupação média
         query_ocp = f"""
             SELECT
                 hc.industria_id,
@@ -130,12 +81,13 @@ def gerar_relatorio_periodo(inicio: str, fim: str, user_id: int,
             FROM historico_capacidade hc
             JOIN produto p ON hc.produto_id = p.id
             JOIN funcionario f ON p.setor_id = f.setor_id
-            WHERE hc.data_completa >= '{inicio}'
-            AND hc.data_completa < '{fim}' AND f.id = {user_id}
+            WHERE hc.data_completa::text LIKE '{ano_mes}%'
+            AND f.id = {user_id}
             GROUP BY hc.industria_id, hc.unidade_id, p.setor_id;
         """
         df_ocp = pd.read_sql(query_ocp, conn)
 
+        # Cálculos finais e definição de status operacional
         entradas = float(df_mov["entradas"].sum()) if not df_mov.empty else 0
         saidas = float(df_mov["saidas"].sum()) if not df_mov.empty else 0
         saldo = entradas - saidas
@@ -148,30 +100,29 @@ def gerar_relatorio_periodo(inicio: str, fim: str, user_id: int,
         else:
             status_op = "Baixo_Desempenho"
 
+        # Retorna o relatório ou informa que não há dados
         if df_mov.empty and df_ocp.empty:
             return {
                 "status": "vazio",
-                "mes_referencia": f"{inicio} a {fim}",
+                "mes_referencia": ano_mes,
                 "user_id": user_id,
                 "mensagem": "Não há dados disponíveis para este período."
             }
-        else:
-            return {
-                "status": "sucesso",
-                "_id": ObjectId(),
-                "mes_referencia": f"{inicio} a {fim}",
-                "gerado_em": datetime.datetime.utcnow().isoformat() + "Z",
-                "origem": "ChatBot sob demanda",
-                "user_id": user_id,
-                "resumo_geral": {
-                    "entradas_total_volume": entradas,
-                    "saidas_total_volume": saidas,
-                    "saldo_final_volume": saldo,
-                    "porcentagem_ocupacao_media": ocupacao,
-                    "sugestoes_agente": None,
-                    "status_operacional": status_op
-                }
+
+        return {
+            "status": "sucesso",
+            "_id": ObjectId(),
+            "mes_referencia": ano_mes,
+            "gerado_em": datetime.utcnow().isoformat() + "Z",
+            "user_id": user_id,
+            "resumo_geral": {
+                "entradas_total_volume": entradas,
+                "saidas_total_volume": saidas,
+                "saldo_final_volume": saldo,
+                "porcentagem_ocupacao_media": ocupacao,
+                "status_operacional": status_op
             }
+        }
 
     except Exception as e:
         print("Erro ao gerar relatório sob demanda:", e)
@@ -180,11 +131,13 @@ def gerar_relatorio_periodo(inicio: str, fim: str, user_id: int,
     finally:
         conn.close()
 
-
 # ------------------------------------------------------ Comparação -----------------------------------------------------
+# Modelo para comparar dois relatórios
 class CompararRelatoriosMensaisArgs(BaseModel):
     relatorio_a: dict
     relatorio_b: dict
+
+# Ferramenta para comparar dois relatórios mensais
 @tool("comparar_relatorios_mensais", args_schema=CompararRelatoriosMensaisArgs)
 def comparar_relatorios_mensais(relatorio_a: dict, relatorio_b: dict) -> dict:
     """
@@ -192,9 +145,15 @@ def comparar_relatorios_mensais(relatorio_a: dict, relatorio_b: dict) -> dict:
     Retorna um documento com as diferenças.
     """
     try:
+        if isinstance(relatorio_a, str):
+            relatorio_a = json.loads(relatorio_a)
+        if isinstance(relatorio_b, str):
+            relatorio_b = json.loads(relatorio_b)
+            
         a = relatorio_a.get("resumo_geral", {})
         b = relatorio_b.get("resumo_geral", {})
 
+        # Calcula diferenças
         dif = {
             "entradas_total_volume": round(b.get("entradas_total_volume", 0) - a.get("entradas_total_volume", 0), 2),
             "saidas_total_volume": round(b.get("saidas_total_volume", 0) - a.get("saidas_total_volume", 0), 2),
@@ -202,6 +161,7 @@ def comparar_relatorios_mensais(relatorio_a: dict, relatorio_b: dict) -> dict:
             "porcentagem_ocupacao_media": round(b.get("porcentagem_ocupacao_media", 0) - a.get("porcentagem_ocupacao_media", 0), 2),
         }
 
+        # Verifica se algum relatório está vazio
         if relatorio_a.get("status") == "vazio" or relatorio_b.get("status") == "vazio":
             return {
                 "status": "vazio",
@@ -213,12 +173,10 @@ def comparar_relatorios_mensais(relatorio_a: dict, relatorio_b: dict) -> dict:
             documento = {
                 "_id": ObjectId(),
                 "mes_referencia": f"Comparação: {relatorio_a.get('mes_referencia')} → {relatorio_b.get('mes_referencia')}",
-                "gerado_em": datetime.datetime.utcnow().isoformat() + "Z",
-                "origem": "ChatBot sob demanda",
-                "user_id": relatorio_a.get("user_id"),  # opcional
+                "gerado_em": datetime.utcnow().isoformat() + "Z",
+                "user_id": relatorio_a.get("user_id"),
                 "resumo_geral": {
                     **dif,
-                    "sugestoes_agente": "Analisar variações de desempenho entre os períodos.",
                     "status_operacional": "Comparativo"
                 }
             }
@@ -228,40 +186,37 @@ def comparar_relatorios_mensais(relatorio_a: dict, relatorio_b: dict) -> dict:
         print("Erro ao comparar relatórios:", e)
         return {"status": "error", "message": str(e)}
 
-
-# ------------------------------------------------------ Consulta (Mock) -----------------------------------------------------
+# ------------------------------------------------------ Consulta -----------------------------------------------------
+# Modelo para consultar relatório existente
 class ConsultaRelatorioMensalArgs(BaseModel):
     mes_referencia: str
     user_id: int
 
+# Ferramenta para consulta de relatório mensal
 @tool("consulta_relatorio_mensal", args_schema=ConsultaRelatorioMensalArgs)
 def consulta_relatorio_mensal(mes_referencia: str, user_id: int) -> dict:
     """
     Retorna um relatório se existir; caso contrário, informa que não há relatório.
-    O mes_referencia deve estar no formato YYYY-MM.
     """
-    # Converte para YYYY-MM caso o usuário passe "Agosto 2025"
+    # Converte nomes de mês para formato YYYY-MM se necessário
     try:
-        dt = datetime.datetime.strptime(mes_referencia, "%B %Y")
-        mes_referencia = dt.strftime("%Y-%m")  # Ex: "2025-08"
+        dt = datetime.strptime(mes_referencia, "%B %Y")
+        mes_referencia = dt.strftime("%Y-%m")
     except ValueError:
-        # Assume que já está no formato correto YYYY-MM
         pass
 
     client = MongoClient(mongo_uri)
     db = client["ChatBot"]
     col = db["relatorios_mensais"]
     
+    # Consulta o relatório no mongo com o filtros necessários
     relatorio_real = col.find_one({
         "mes_referencia": mes_referencia,
         "user_id": user_id
     })
     client.close()
 
-  
-    print(relatorio_real)
-    print(mes_referencia, user_id, relatorio_real)
-
+    # Retorna relatório ou mensagem de vazio
     if relatorio_real:
         return {
             "status": "sucesso",
@@ -278,9 +233,9 @@ def consulta_relatorio_mensal(mes_referencia: str, user_id: int) -> dict:
         }
 
 # ------------------------------------------------------ Registro Geral -----------------------------------------------------
+# Lista com todas as ferramentas relacionadas a relatórios
 TOOLS_RELATORIO = [
-    gerar_sugestoes_estoque,
-    gerar_relatorio_periodo,
+    gerar_relatorio_mensal,
     comparar_relatorios_mensais,
     consulta_relatorio_mensal
 ]

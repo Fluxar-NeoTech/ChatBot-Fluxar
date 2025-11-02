@@ -1,36 +1,26 @@
-# import uvicorn
-# from app.routers.router import router
-# from fastapi import FastAPI
-# from fastapi.middleware.cors import CORSMiddleware
+import uvicorn
+from app.routers.router import router
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+
+# Cria a instância principal da aplicação FastAPI
+app = FastAPI()
+
+# Configura o middleware de CORS para permitir requisições de qualquer origem
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
-# app = FastAPI()
+# Inclui o roteador principal na aplicação
+app.include_router(router)
 
-# app.add_middleware(
-#     CORSMiddleware,
-#     allow_origins=["*"],
-#     allow_credentials=True,
-#     allow_methods=["*"],
-#     allow_headers=["*"],
-# )
+# Bloco principal para rodar a aplicação quando executado diretamente
+if __name__ == "__main__":
+    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
 
-# app.include_router(router)
-
-
-# if __name__ == "__main__":
-#     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
-
-from app.gemini.modelos.orquestrador import chamada_agente
-
-
-while True:
-    user_input = input(">")
-    if user_input.lower() in ("sair", "end", "fim", "bye", "tchau"):
-        print("Encerrando conversa. ")
-        break
-    try:
-        resposta = chamada_agente(user_input, 3)
-        print(resposta)
-        
-    except Exception as e:
-        print(f"Erro ao consumir a API {e}")
