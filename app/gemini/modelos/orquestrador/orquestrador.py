@@ -81,26 +81,20 @@ def chamada_agente(pergunta: str, user_id: int):
     # Quando FAQ - retorna direto também
     
     if "ROUTE=analise_estoque" in resposta_roteador:
-        print(user_id)
         agente_escolhido = chain_analista
     elif "ROUTE=relatorio_mensal" in resposta_roteador:
-        print(user_id)
         agente_escolhido = chain_relatorio
     elif "ROUTE=faq" in resposta_roteador:
-        print(user_id)
         pergunta_para_faq = resposta_roteador.split("PERGUNTA_ORIGINAL=")[-1].split("\n")[0]
 
         # retorna a resposta para o usuário
         return chain_faq.invoke({"input": pergunta_para_faq}, config=session_config)
     elif "ROUTE=" not in resposta_roteador:
-        print(user_id)
         return resposta_roteador
     else:
-        print(user_id)
         return "Não foi possível gerar a resposta esperada. Tente reformular sua pergunta."
 
         
-    print("[DEBUG] Chamando agente com:", {"input": resposta_roteador, "user_id": user_id})
 
     # Invoca o agente escolhido
     resposta_agente = agente_escolhido.invoke(
@@ -114,7 +108,6 @@ def chamada_agente(pergunta: str, user_id: int):
     if "Aprovado" in avaliacao_juiz:
         resposta = resposta_agente.get("output", resposta_agente)
         
-        print(user_id)
 
         # devolve a resposta pelo orquestrador
         return chain_orquestrador.invoke({
@@ -138,15 +131,12 @@ def chamada_agente(pergunta: str, user_id: int):
             f"Reformule a resposta_agente considerando o feedback do juiz:\n{feedback}"
         )
 
-        print("[DEBUG] Chamando agente com:", {"input": input, "user_id": user_id})
-
 
         # Invoca o agente escolhido para gerar uma nova resposta com base na pergunta reformulada
 
         resposta_agente = agente_escolhido.invoke({"input": pergunta_nova, "user_id": user_id}, config=session_config)
         resposta = resposta_agente.get("output", resposta_agente)
         
-        print(user_id)
 
 
         # devolve a resposta pelo orquestrador
@@ -155,4 +145,3 @@ def chamada_agente(pergunta: str, user_id: int):
             "user_id": user_id,
             "chat_history": get_session_history(user_id)
         }, config=session_config)
-    print(user_id)

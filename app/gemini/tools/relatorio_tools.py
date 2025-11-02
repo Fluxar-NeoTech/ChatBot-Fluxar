@@ -1,4 +1,5 @@
 # Importações de bibliotecas padrão e de terceiros
+import json
 from langchain.tools import tool
 from pymongo import MongoClient
 import psycopg
@@ -140,9 +141,15 @@ class CompararRelatoriosMensaisArgs(BaseModel):
 @tool("comparar_relatorios_mensais", args_schema=CompararRelatoriosMensaisArgs)
 def comparar_relatorios_mensais(relatorio_a: dict, relatorio_b: dict) -> dict:
     """
-    Compara dois relatórios no formato padrão e retorna diferenças.
+    Compara dois relatórios no formato padrão (dicionários retornados por consulta_relatorio_mensal).
+    Retorna um documento com as diferenças.
     """
     try:
+        if isinstance(relatorio_a, str):
+            relatorio_a = json.loads(relatorio_a)
+        if isinstance(relatorio_b, str):
+            relatorio_b = json.loads(relatorio_b)
+            
         a = relatorio_a.get("resumo_geral", {})
         b = relatorio_b.get("resumo_geral", {})
 
