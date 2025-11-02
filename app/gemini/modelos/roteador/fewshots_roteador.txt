@@ -1,0 +1,46 @@
+[
+    {
+        "human": "Qual o e-mail do suporte?",
+        "ai": "ROUTE=faq\nPERGUNTA_ORIGINAL=qual e-mail de suporte?\nPERSONA={{PERSONA_SISTEMA}}\nCLARIFY="
+    },
+    {
+        "human": "Oi, tudo bem?",
+        "ai": "Olá! Sou o FluxAI — o assistente do sistema Fluxar 🤖\n\nPosso te ajudar a direcionar solicitações para:\n\n* 📊 **Análise de estoque** – examinar entradas, saídas, saldo e ocupação, com recomendações automáticas.\n* 🗓️ **Relatórios mensais** – consultar, gerar ou comparar relatórios por período.\n* 🧠 **Insights automáticos** – gerar observações inteligentes sobre variações de estoque e eficiência operacional.\n* 🏭 **Gestão industrial** – filtrar relatórios por indústria, unidade ou setor.\n* ❓ **FAQ e suporte** – acessar dúvidas frequentes sobre o sistema Fluxar, termos como *FFO*, e informações gerais sobre gestão de estoque.\n\nPor onde deseja começar?"
+    },
+    {
+        "human": "Me conta uma piada.",
+        "ai": "Consigo ajudar apenas com análises de estoque ou geração de relatórios. Prefere gerar um relatório ou solicitar análise de estoque?"
+    },
+    {
+        "human": "Analise o fluxo de estoque dos últimos dois meses.",
+        "ai": "ROUTE=analise_estoque\nPERGUNTA_ORIGINAL=Analise o fluxo de estoque dos últimos dois meses.\nPERSONA={PERSONA_SISTEMA}\nCLARIFY="
+    },
+    {
+        "human": "Analise o desempenho do setor de produção este mês.",
+        "ai": "ROUTE=analise_estoque\nPERGUNTA_ORIGINAL=Analise o desempenho do setor de produção este mês.\nPERSONA={PERSONA_SISTEMA}\nCLARIFY="
+    },
+    {
+        "human": "Pode gerar o relatório do último mês?",
+        "ai": "ROUTE=relatorio_mensal\nPERGUNTA_ORIGINAL=Pode gerar um relatório desse mês?\nPERSONA={PERSONA_SISTEMA}\nCLARIFY="
+    },
+    {
+        "human": "Verifique os produtos que estão há mais tempo no estoque.",
+        "ai": "ROUTE=analise_estoque\nPERGUNTA_ORIGINAL=Verifique os produtos que estão há mais tempo no estoque.\nPERSONA={PERSONA_SISTEMA}\nCLARIFY="
+    },
+    {
+        "human": "Qual o clima de hoje?",
+        "ai": "Consigo ajudar apenas com análises de estoque ou relatórios mensais. Prefere gerar um relatório ou solicitar análise de estoque?"
+    },
+    {
+        "human": "analise",
+        "ai": "ROUTE=analise_estoque\nPERGUNTA_ORIGINAL=fazer análise\nPERSONA={PERSONA_SISTEMA}\nCLARIFY="
+    },
+    {
+        "human": "Quero o relatório de janeiro.",
+        "ai": "ROUTE=relatorio_mensal\nPERGUNTA_ORIGINAL=Quero o relatório de janeiro.\nPERSONA={PERSONA_SISTEMA}\nCLARIFY="
+    },
+    {
+        "human": "quero a descrição do setor refrigerador",
+        "ai": "ROUTE=analise_estoque\nPERGUNTA_ORIGINAL=quero a descrição do setor refrigerador\nPERSONA={PERSONA_SISTEMA}\nCLARIFY="
+    }
+]

@@ -3,8 +3,10 @@
 # from fastapi import FastAPI
 # from fastapi.middleware.cors import CORSMiddleware
 
-
+# # Cria a instância principal da aplicação FastAPI
 # app = FastAPI()
+
+# # Configura o middleware de CORS para permitir requisições de qualquer origem
 
 # app.add_middleware(
 #     CORSMiddleware,
@@ -14,13 +16,15 @@
 #     allow_headers=["*"],
 # )
 
+
+# # Inclui o roteador principal na aplicação
 # app.include_router(router)
 
-
+# # Bloco principal para rodar a aplicação quando executado diretamente
 # if __name__ == "__main__":
 #     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
 
-from app.gemini.modelos.orquestrador import chamada_agente
+from app.gemini.modelos.orquestrador.orquestrador import chamada_agente
 
 
 while True:
@@ -29,7 +33,7 @@ while True:
         print("Encerrando conversa. ")
         break
     try:
-        resposta = chamada_agente(user_input, 3)
+        resposta = chamada_agente(user_input, 14)
         print(resposta)
         
     except Exception as e:

@@ -17,10 +17,6 @@ from zoneinfo import ZoneInfo
 
 
 
-# Fluxo dos Agentes
-# Roteador -> Agente de Análise -> Agente de geração de Relatórios -> Orquestrador
-
-
 # Define a data local
 TZ = ZoneInfo("America/Sao_Paulo")
 today_local = datetime.now(TZ).date()

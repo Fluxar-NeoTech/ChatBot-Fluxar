@@ -1,17 +1,17 @@
-from app.gemini.RPA.geracao_relatorios import gerar_relatorio_mensal, gerar_relatorio_resumo
-from app.gemini.modelos.orquestrador import chamada_agente
+
+from app.gemini.modelos.orquestrador.orquestrador import chamada_agente
 from app.models.pergunta_analista import PerguntaAnalista
 from fastapi import FastAPI, APIRouter, Path, Body, status 
 from fastapi.responses import JSONResponse
 
+# definição da rota
 router = APIRouter(prefix="/session")
 
+# Definição da rota POST para enviar perguntas e receber respostas
 @router.post("/{user_id}")
 def enviar_resposta(user_id: int = Path(...,title="ID do Usuário", description="Identificador único do usuário"), body: PerguntaAnalista = Body(description="Pergunta enviada pelo usuário")):
     try:
-        # resumo_geral, df_completo, mes_ref = gerar_relatorio_resumo()
-        # gerar_relatorio_mensal(resumo_geral, df_completo, mes_ref, user_id)
-        
+         # Chama o fluxo do chatbot passando a pergunta do usuário e seu ID, retornando a resposta do chatbot
         resposta = chamada_agente(body.pergunta, user_id)  
         return JSONResponse(
             content={"resposta": resposta},
