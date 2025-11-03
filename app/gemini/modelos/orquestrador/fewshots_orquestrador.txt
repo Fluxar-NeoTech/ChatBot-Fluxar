@@ -1,92 +1,22 @@
 [
-    {
-        "human": "ROUTE=relatorio_mensal\nPERGUNTA_ORIGINAL=Quais são as sugestões para otimizar o estoque com base nos dados fornecidos?\nPERSONA={PERSONA_SISTEMA}\nCLARIFY=",
-        "ai": {
-            "sugestoes": [
-                "Aumentar as entradas de produtos que têm alta demanda.",
-                "Reduzir as saídas de produtos que estão com baixa rotatividade.",
-                "Implementar um sistema de monitoramento de estoque em tempo real."
-            ]
-        }
-    },
-    {
-        "human": "ROUTE=relatorio_mensal\nPERGUNTA_ORIGINAL=Gere um relatório de movimentação de estoque de outubro de 2025.\nPERSONA={PERSONA_SISTEMA}\nCLARIFY=",
-        "ai": {
-            "status": "ok",
-            "relatorio": {
-                "mes_referencia": "Outubro 2025",
-                "resumo_geral": {
-                    "entradas_total_volume": 4523,
-                    "saidas_total_volume": 1666,
-                    "saldo_final_volume": 2857,
-                    "porcentagem_ocupacao_media": 21.83
-                },
-                "resposta": "RELATÓRIO MENSAL — Outubro de 2025\\nEntradas: 4523 | Saídas: 1666 | Saldo: 2857 | Ocupação média: 21.83%\\nRecomendações: Otimizar layout, Monitorar fluxo, Aproveitar espaço ocioso."
-            }
-        }
-    },
-    {
-        "human": "ROUTE=relatorio_mensal\nPERGUNTA_ORIGINAL=Compare os relatórios de setembro e outubro de 2025.\nPERSONA={PERSONA_SISTEMA}\nCLARIFY=",
-        "ai": {
-            "status": "ok",
-            "relatorio": {
-                "mes_referencia": "Comparativo Setembro-Outubro 2025",
-                "resumo_geral": {
-                    "entradas_total_volume": 200,
-                    "saidas_total_volume": 150,
-                    "saldo_final_volume": 350,
-                    "porcentagem_ocupacao_media": 5.0
-                },
-                "resposta": "RELATÓRIO COMPARATIVO — Setembro x Outubro 2025\\nEntradas: 200 | Saídas: 150 | Saldo: 350 | Ocupação média: 5%\\nRecomendações: Monitorar entradas e saídas, Planejar estoques futuros, Otimizar ocupação."
-            }
-        }
-    },
-    {
-        "human": "ROUTE=relatorio_mensal\nPERGUNTA_ORIGINAL=Consulte o relatório mensal de setembro de 2025.\nPERSONA={PERSONA_SISTEMA}\nCLARIFY=",
-        "ai": {
-            "status": "ok",
-            "relatorio": {
-                "mes_referencia": "Setembro 2025",
-                "resumo_geral": {
-                    "entradas_total_volume": 4523,
-                    "saidas_total_volume": 1666,
-                    "saldo_final_volume": 2857,
-                    "porcentagem_ocupacao_media": 21.83
-                },
-                "resposta": "RELATÓRIO MENSAL — Setembro de 2025\\nEntradas: 4523 | Saídas: 1666 | Saldo: 2857 | Ocupação média: 21.83%\\nRecomendações: Otimizar layout, Monitorar fluxo, Aproveitar espaço ocioso."
-            }
-        }
-    },
-    {
-        "human": "ROUTE=analise_estoque\nPERGUNTA_ORIGINAL=Detectar anomalias no setor de Armazenagem\nPERSONA={PERSONA_SISTEMA}\nCLARIFY=",
-        "ai": {
-            "dominio": "analise_estoque",
-            "intencao": "detectar_anomalias",
-            "resposta_agente": "Foram detectadas inconsistências no setor de Armazenagem: divergência de 48 L entre o estoque físico e o registrado.",
-            "recomendacao": "Deseja que eu gere um relatório detalhado da auditoria?",
-            "documento": {
-                "setor": "Armazenagem",
-                "divergencia_L": 48,
-                "tipo_inconsistencia": "estoque_fisico_vs_sistema",
-                "data_detectada": "2025-10-26T15:40:00",
-                "responsavel_verificacao": "Agente de Análise de Estoque"
-            }
-        }
-    },
-    {
-        "human": "ROUTE=faq\nPERGUNTA_ORIGINAL=qual o e-mail de suporte?\nPERSONA={PERSONA_SISTEMA}\nCLARIFY=",
-        "ai": {
-            "dominio": "faq",
-            "intencao": "consultar_faq",
-            "resposta_agente": "Você pode entrar em contato com nossa equipe de suporte pelo e-mail suporte2025.neo.tech@gmail.com.",
-            "recomendacao": "Se preferir, posso abrir um chamado diretamente no sistema para você.",
-            "documento": {
-                "tipo": "contato_suporte",
-                "email": "suporte2025.neo.tech@gmail.com",
-                "canal_alternativo": "formulário de suporte no portal Neo Tech",
-                "ultima_atualizacao": "2025-10-29T14:00:00",
-                "responsavel": "Atendimento Neo Tech"
-            }
-        }
-    }
+  {
+    "human": "ESPECIALISTA_JSON:\n{\"dominio\":\"relatorio_mensal\",\"intencao\":\"sugestoes_estoque\",\"resposta\":\"Sugestões para otimizar o estoque com base nos dados fornecidos.\",\"sugestoes\":[\"Aumentar as entradas de produtos que têm alta demanda.\",\"Reduzir as saídas de produtos que estão com baixa rotatividade.\",\"Implementar um sistema de monitoramento de estoque em tempo real.\"]}",
+    "ai": "Sugestões para otimizar o estoque com base nos dados fornecidos:\n- Aumentar as entradas de produtos que têm alta demanda.\n- Reduzir as saídas de produtos que estão com baixa rotatividade.\n- Implementar um sistema de monitoramento de estoque em tempo real."
+  },
+  {
+    "human": "ESPECIALISTA_JSON:\n{\"dominio\":\"relatorio_mensal\",\"intencao\":\"consultar\",\"status\":\"ok\",\"relatorio\":{\"mes_referencia\":\"Outubro 2025\",\"gerado_em\":\"2025-10-31T12:00:00Z\",\"resumo_geral\":{\"entradas_total_volume\":4523,\"saidas_total_volume\":1666,\"saldo_final_volume\":2857,\"porcentagem_ocupacao_media\":21.83},\"resposta\":\"RELATÓRIO MENSAL — Outubro de 2025\\n──────────────────────────────────────\\n\\nRESUMO DE MOVIMENTAÇÃO\\n- Entradas totais: 4523 m³ \\n- Saídas totais: 1666 m³ \\n- Saldo final: 2857 m³ \\n- Ocupação média do estoque: 21.83%\\n\\nDurante o mês de outubro, observou-se uma movimentação consistente de produtos, refletindo a demanda regular e a reposição estratégica de itens de alta rotatividade. O saldo final garante boa disponibilidade para atender às operações dos próximos períodos.\\n\\nANÁLISE DE FLUXO\\n- Entradas: Predominantemente matérias-primas críticas para produção, com destaque para os setores 1 e 2.\\n- Saídas: Consumo e distribuição de produtos acabados e semiacabados, com picos em datas específicas devido à demanda sazonal.\\n- Saldo: Estoque equilibrado, porém com baixa ocupação relativa, indicando espaço disponível para otimização logística.\\n\\nDESEMPENHO POR SETOR\\n- Setor 1: Alta rotatividade, estoque otimizado, sem gargalos.\\n- Setor 2: Movimentação moderada, oportunidades de reorganização.\\n- Setor 3: Baixa ocupação, espaço ocioso significativo, sugere revisão de alocação.\\n\\nRECOMENDAÇÕES\\n- Otimizar o layout do estoque\\n- Investigar causas da baixa ocupação\\n- Aproveitar espaço ocioso\\n- Monitoramento contínuo\\n- Treinamento e processos\\n- Relatórios complementares\\n\\nCONCLUSÃO\\nO mês de outubro apresentou movimentação estável, saldo positivo e oportunidades claras de otimização de espaço. As ações recomendadas visam maximizar a eficiência operacional e preparar o estoque para períodos de maior demanda.\"}}",
+    "ai": "RELATÓRIO MENSAL — Outubro de 2025\n──────────────────────────────────────\n\nRESUMO DE MOVIMENTAÇÃO\n- Entradas totais: 4523 m³ \n- Saídas totais: 1666 m³ \n- Saldo final: 2857 m³ \n- Ocupação média do estoque: 21.83%\n\nDurante o mês de outubro, observou-se uma movimentação consistente de produtos, refletindo a demanda regular e a reposição estratégica de itens de alta rotatividade. O saldo final garante boa disponibilidade para atender às operações dos próximos períodos.\n\nANÁLISE DE FLUXO\n- Entradas: Predominantemente matérias-primas críticas para produção, com destaque para os setores 1 e 2.\n- Saídas: Consumo e distribuição de produtos acabados e semiacabados, com picos em datas específicas devido à demanda sazonal.\n- Saldo: Estoque equilibrado, porém com baixa ocupação relativa, indicando espaço disponível para otimização logística.\n\nDESEMPENHO POR SETOR\n- Setor 1: Alta rotatividade, estoque otimizado, sem gargalos.\n- Setor 2: Movimentação moderada, oportunidades de reorganização.\n- Setor 3: Baixa ocupação, espaço ocioso significativo, sugere revisão de alocação.\n\nRECOMENDAÇÕES\n- Otimizar o layout do estoque\n- Investigar causas da baixa ocupação\n- Aproveitar espaço ocioso\n- Monitoramento contínuo\n- Treinamento e processos\n- Relatórios complementares\n\nCONCLUSÃO\nO mês de outubro apresentou movimentação estável, saldo positivo e oportunidades claras de otimização de espaço. As ações recomendadas visam maximizar a eficiência operacional e preparar o estoque para períodos de maior demanda."
+  },
+  {
+    "human": "ESPECIALISTA_JSON:\n{\"dominio\":\"relatorio_mensal\",\"intencao\":\"comparativo\",\"status\":\"ok\",\"relatorio\":{\"mes_referencia\":\"Comparativo Setembro-Outubro 2025\",\"resumo_geral\":{\"entradas_total_volume\":200,\"saidas_total_volume\":150,\"saldo_final_volume\":350,\"porcentagem_ocupacao_media\":5.0},\"resposta\":\"RELATÓRIO COMPARATIVO — Setembro x Outubro 2025\\n──────────────────────────────────────\\n\\nRESUMO DE MOVIMENTAÇÃO\\n- Entradas totais: 200 m³ \\n- Saídas totais: 150 m³ \\n- Saldo final: 350 m³ \\n- Ocupação média do estoque: 5%\\n\\nNo comparativo entre os meses, observa-se diferença significativa no saldo final, indicando que o estoque cresceu em outubro em relação a setembro. A movimentação de entradas e saídas reflete ajustes na reposição e distribuição de produtos durante o período.\\n\\nANÁLISE DE FLUXO\\n- Entradas: Ajustadas conforme a demanda do período anterior, com leve aumento de reposição.\\n- Saídas: Redução moderada em outubro, sugerindo menor consumo ou distribuição.\\n- Saldo: Crescimento positivo, garantindo disponibilidade suficiente para operações futuras.\\n\\nDESEMPENHO POR MÊS\\n- Setembro: Estoque estável, ocupação baixa, fluxo regular de entradas e saídas.\\n- Outubro: Estoque levemente maior, indicando planejamento estratégico para atender demanda futura.\\n\\nRECOMENDAÇÕES\\n- Monitorar entradas e saídas\\n- Planejar estoques futuros\\n- Otimizar ocupação\\n- Integração com relatórios anteriores\\n\\nCONCLUSÃO\\nO comparativo evidencia crescimento do saldo em outubro, manutenção de entradas e saídas equilibradas, e espaço disponível para otimização logística, garantindo preparo para demandas futuras.\"}}",
+    "ai": "RELATÓRIO COMPARATIVO — Setembro x Outubro 2025\n──────────────────────────────────────\n\nRESUMO DE MOVIMENTAÇÃO\n- Entradas totais: 200 m³ \n- Saídas totais: 150 m³ \n- Saldo final: 350 m³ \n- Ocupação média do estoque: 5%\n\nNo comparativo entre os meses, observa-se diferença significativa no saldo final, indicando que o estoque cresceu em outubro em relação a setembro. A movimentação de entradas e saídas reflete ajustes na reposição e distribuição de produtos durante o período.\n\nANÁLISE DE FLUXO\n- Entradas: Ajustadas conforme a demanda do período anterior, com leve aumento de reposição.\n- Saídas: Redução moderada em outubro, sugerindo menor consumo ou distribuição.\n- Saldo: Crescimento positivo, garantindo disponibilidade suficiente para operações futuras.\n\nDESEMPENHO POR MÊS\n- Setembro: Estoque estável, ocupação baixa, fluxo regular de entradas e saídas.\n- Outubro: Estoque levemente maior, indicando planejamento estratégico para atender demanda futura.\n\nRECOMENDAÇÕES\n- Monitorar entradas e saídas\n- Planejar estoques futuros\n- Otimizar ocupação\n- Integração com relatórios anteriores\n\nCONCLUSÃO\nO comparativo evidencia crescimento do saldo em outubro, manutenção de entradas e saídas equilibradas, e espaço disponível para otimização logística, garantindo preparo para demandas futuras."
+  },
+  {
+    "human": "ESPECIALISTA_JSON:\n{\"dominio\":\"relatorio_mensal\",\"intencao\":\"gerar_relatorio\",\"resposta\":\"Não foi possível gerar relatórios sob demanda para o mês 2024-11, pois não há dados disponíveis para este período.\",\"recomendacao\":[\"Verificar a entrada de dados para o mês de referência.\",\"Tentar gerar o relatório para um mês com dados existentes.\"],\"status_operacional\":\"Dados_Ausentes\"}",
+    "ai": "Não foi possível gerar relatórios sob demanda para o mês de novembro de 2024, pois não há dados disponíveis para este período.\n- *Recomendações*:\n1. Verificar a entrada de dados para o mês de referência.\n2. Tentar gerar o relatório para um mês com dados existentes."
+  },
+  {
+    "human": "ESPECIALISTA_JSON:\n{\"dominio\":\"relatorio_mensal\",\"intencao\":\"comparacao\",\"resposta\":\"Não foi possível gerar um relatório comparativo completo entre agosto e janeiro de 2025, pois os dados para ambos os meses não estão disponíveis.\",\"recomendacao\":[\"Consultar a disponibilidade de dados para os meses de agosto e janeiro de 2025.\",\"Tentar uma comparação com meses diferentes que possuam relatórios cadastrados.\"],\"status_operacional\":\"Dados_Ausentes_Comparativo\"}",
+    "ai": "Não foi possível gerar um relatório comparativo completo entre agosto e janeiro de 2025, pois os dados para ambos os meses não estão disponíveis.\n- *Recomendações*:\n1. Consultar a disponibilidade de dados para os meses de agosto e janeiro de 2025.\n2. Tentar uma comparação com meses diferentes que possuam relatórios cadastrados."
+  }
 ]

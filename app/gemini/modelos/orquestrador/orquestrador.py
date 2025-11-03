@@ -63,8 +63,8 @@ chain_orquestrador = RunnableWithMessageHistory(
 )
 
 # ========================================================= Função de direcionamento de Agentes ==================================================
-
 def chamada_agente(pergunta: str, user_id: int):
+    
     session_config = {"configurable": {"session_id": user_id}}
     
     # INPUT GUARDRAIL — bloqueia mensagens inadequadas do usuário
@@ -76,40 +76,32 @@ def chamada_agente(pergunta: str, user_id: int):
         {"input": pergunta, "user_id": user_id},
         config=session_config
     )
-
-    # Se não for rota válida, retorna direto
-    # Quando FAQ - retorna direto também
     
+    # Seleção do agente
+    agente_escolhido = None
     if "ROUTE=analise_estoque" in resposta_roteador:
         agente_escolhido = chain_analista
     elif "ROUTE=relatorio_mensal" in resposta_roteador:
         agente_escolhido = chain_relatorio
     elif "ROUTE=faq" in resposta_roteador:
         pergunta_para_faq = resposta_roteador.split("PERGUNTA_ORIGINAL=")[-1].split("\n")[0]
-
-        # retorna a resposta para o usuário
         return chain_faq.invoke({"input": pergunta_para_faq}, config=session_config)
     elif "ROUTE=" not in resposta_roteador:
         return resposta_roteador
     else:
         return "Não foi possível gerar a resposta esperada. Tente reformular sua pergunta."
 
-        
-
     # Invoca o agente escolhido
     resposta_agente = agente_escolhido.invoke(
         {"input": resposta_roteador, "user_id": user_id},
         config=session_config
     )
-    
+
     # Avalia a resposta pelo juiz
     avaliacao_juiz = avaliar_resposta_agente(pergunta, resposta_agente)
 
     if "Aprovado" in avaliacao_juiz:
         resposta = resposta_agente.get("output", resposta_agente)
-        
-
-        # devolve a resposta pelo orquestrador
         return chain_orquestrador.invoke({
             "input": resposta,
             "user_id": user_id,
@@ -117,29 +109,16 @@ def chamada_agente(pergunta: str, user_id: int):
         }, config=session_config)
 
     elif "Reprovado" in avaliacao_juiz:
-
-        # Extrai apenas o feedback do juiz da string 'avaliacao_juiz'.
-        # Se a string contém "Feedback:", pega o texto após essa palavra e remove espaços em branco.
-        # Caso contrário, mantém a string inteira.
-
         feedback = avaliacao_juiz.split("Feedback:")[-1].strip() if "Feedback:" in avaliacao_juiz else avaliacao_juiz
 
-
-        # Monta uma nova pergunta para o agente, informando que a resposta anterior foi reprovada e incluindo o feedback do juiz para que a resposta seja reformulada.
         pergunta_nova = (
             f"{pergunta}\n\nO juiz reprovou a resposta_agente anterior. "
             f"Reformule a resposta_agente considerando o feedback do juiz:\n{feedback}"
         )
 
-
-        # Invoca o agente escolhido para gerar uma nova resposta com base na pergunta reformulada
-
         resposta_agente = agente_escolhido.invoke({"input": pergunta_nova, "user_id": user_id}, config=session_config)
+
         resposta = resposta_agente.get("output", resposta_agente)
-        
-
-
-        # devolve a resposta pelo orquestrador
         return chain_orquestrador.invoke({
             "input": resposta,
             "user_id": user_id,

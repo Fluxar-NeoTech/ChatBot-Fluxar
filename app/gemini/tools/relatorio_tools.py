@@ -1,9 +1,10 @@
 # Importações de bibliotecas padrão e de terceiros
+import calendar
 import json
 from langchain.tools import tool
 from pymongo import MongoClient
 import psycopg
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import Optional
 from datetime import datetime
 import pandas as pd
@@ -131,60 +132,6 @@ def gerar_relatorio_mensal(user_id: int, ano_mes: str,
     finally:
         conn.close()
 
-# ------------------------------------------------------ Comparação -----------------------------------------------------
-# Modelo para comparar dois relatórios
-class CompararRelatoriosMensaisArgs(BaseModel):
-    relatorio_a: dict
-    relatorio_b: dict
-
-# Ferramenta para comparar dois relatórios mensais
-@tool("comparar_relatorios_mensais", args_schema=CompararRelatoriosMensaisArgs)
-def comparar_relatorios_mensais(relatorio_a: dict, relatorio_b: dict) -> dict:
-    """
-    Compara dois relatórios no formato padrão (dicionários retornados por consulta_relatorio_mensal).
-    Retorna um documento com as diferenças.
-    """
-    try:
-        if isinstance(relatorio_a, str):
-            relatorio_a = json.loads(relatorio_a)
-        if isinstance(relatorio_b, str):
-            relatorio_b = json.loads(relatorio_b)
-            
-        a = relatorio_a.get("resumo_geral", {})
-        b = relatorio_b.get("resumo_geral", {})
-
-        # Calcula diferenças
-        dif = {
-            "entradas_total_volume": round(b.get("entradas_total_volume", 0) - a.get("entradas_total_volume", 0), 2),
-            "saidas_total_volume": round(b.get("saidas_total_volume", 0) - a.get("saidas_total_volume", 0), 2),
-            "saldo_final_volume": round(b.get("saldo_final_volume", 0) - a.get("saldo_final_volume", 0), 2),
-            "porcentagem_ocupacao_media": round(b.get("porcentagem_ocupacao_media", 0) - a.get("porcentagem_ocupacao_media", 0), 2),
-        }
-
-        # Verifica se algum relatório está vazio
-        if relatorio_a.get("status") == "vazio" or relatorio_b.get("status") == "vazio":
-            return {
-                "status": "vazio",
-                "mensagem": "Não é possível comparar: um dos relatórios não existe.",
-                "relatorio_a": relatorio_a,
-                "relatorio_b": relatorio_b
-            }
-        else:
-            documento = {
-                "_id": ObjectId(),
-                "mes_referencia": f"Comparação: {relatorio_a.get('mes_referencia')} → {relatorio_b.get('mes_referencia')}",
-                "gerado_em": datetime.utcnow().isoformat() + "Z",
-                "user_id": relatorio_a.get("user_id"),
-                "resumo_geral": {
-                    **dif,
-                    "status_operacional": "Comparativo"
-                }
-            }
-
-            return documento
-    except Exception as e:
-        print("Erro ao comparar relatórios:", e)
-        return {"status": "error", "message": str(e)}
 
 # ------------------------------------------------------ Consulta -----------------------------------------------------
 # Modelo para consultar relatório existente
@@ -236,6 +183,5 @@ def consulta_relatorio_mensal(mes_referencia: str, user_id: int) -> dict:
 # Lista com todas as ferramentas relacionadas a relatórios
 TOOLS_RELATORIO = [
     gerar_relatorio_mensal,
-    comparar_relatorios_mensais,
     consulta_relatorio_mensal
 ]

@@ -5,7 +5,7 @@
     },
     {
         "human": "Oi, tudo bem?",
-        "ai": "Olá! Sou o FluxAI — o assistente do sistema Fluxar 🤖\n\nPosso te ajudar a direcionar solicitações para:\n\n* 📊 **Análise de estoque** – examinar entradas, saídas, saldo e ocupação, com recomendações automáticas.\n* 🗓️ **Relatórios mensais** – consultar, gerar ou comparar relatórios por período.\n* 🧠 **Insights automáticos** – gerar observações inteligentes sobre variações de estoque e eficiência operacional.\n* 🏭 **Gestão industrial** – filtrar relatórios por indústria, unidade ou setor.\n* ❓ **FAQ e suporte** – acessar dúvidas frequentes sobre o sistema Fluxar, termos como *FFO*, e informações gerais sobre gestão de estoque.\n\nPor onde deseja começar?"
+        "ai": "Olá! Sou o FluxAI — o assistente do sistema Fluxar 🤖\n\nPosso te ajudar a direcionar solicitações para:\n\n* 📊 **Análise de estoque** – examinar entradas, saídas, saldo e ocupação, com recomendações automáticas.\n* 🗓️ **Relatórios mensais** – consultar, gerar relatórios por período.\n* 🧠 **Insights automáticos** – gerar observações inteligentes sobre variações de estoque e eficiência operacional.\n* 🏭 **Gestão industrial** – filtrar relatórios por indústria, unidade ou setor.\n* ❓ **FAQ e suporte** – acessar dúvidas frequentes sobre o sistema Fluxar, termos como *FFO*, e informações gerais sobre gestão de estoque.\n\nPor onde deseja começar?"
     },
     {
         "human": "Me conta uma piada.",
@@ -33,7 +33,7 @@
     },
     {
         "human": "analise",
-        "ai": "ROUTE=analise_estoque\nPERGUNTA_ORIGINAL=fazer análise\nPERSONA={PERSONA_SISTEMA}\nCLARIFY="
+        "ai": "ROUTE=analise_estoque\nPERGUNTA_ORIGINAL=fazer análise\nPERSONA={PERSONA_SISTEMA}\nCLARIFY=Forneça mais detalhes do que espera de análise."
     },
     {
         "human": "Quero o relatório de janeiro.",
