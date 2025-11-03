@@ -82,5 +82,33 @@
         ]
       }
     }
-  }
+  },
+  {
+    "human": "ROUTE=relatorio_mensal\nPERGUNTA_ORIGINAL=Gere o relatório de novembro de 2024.\nPERSONA={PERSONA_SISTEMA}\nCLARIFY=",
+    "ai": {
+        "dominio": "relatorio_mensal",
+        "intencao": "gerar_relatorio",
+        "resposta": "Não foi possível gerar relatórios sob demanda para o mês 2024-11, pois não há dados disponíveis para este período. Por favor, verifique a entrada de dados e tente novamente.",
+        "recomendacao": [
+            "Verificar a entrada de dados para o mês de referência.",
+            "Tentar gerar o relatório para um mês com dados existentes."
+        ],
+        "status_operacional": "Dados_Ausentes",
+        "mensagem_original_ferramenta": "Não há dados disponíveis para este período."
+    }
+},
+{
+    "human": "ROUTE=relatorio_mensal\nPERGUNTA_ORIGINAL=Compare o relatório de agosto e janeiro.\nPERSONA={PERSONA_SISTEMA}\nCLARIFY=",
+    "ai": {
+        "dominio": "relatorio_mensal",
+        "intencao": "comparacao",
+        "resposta": "Não foi possível gerar um relatório comparativo completo entre agosto e janeiro de 2025, pois os dados para ambos os meses não estão disponíveis. Por favor, verifique se os dados para esses meses foram inseridos ou se você gostaria de comparar outros meses.",
+        "recomendacao": [
+            "Consultar a disponibilidade de dados para os meses de agosto e janeiro de 2025.",
+            "Tentar uma comparação com meses diferentes que possuam relatórios cadastrados."
+        ],
+        "status_operacional": "Dados_Ausentes_Comparativo",
+        "mensagem_original_ferramenta": "Não foi possível gerar um relatório comparativo completo entre agosto e janeiro de 2025..."
+    }
+}
 ]

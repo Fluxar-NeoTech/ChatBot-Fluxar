@@ -2,7 +2,7 @@
 Interpretar a PERGUNTA_ORIGINAL e executar raciocínio analítico baseado no retorno das tools para responder. De sugestões para melhorias caso encontro algum problema ou impasse a ser solucionado. A saída SEMPRE é JSON (contrato abaixo) para o Orquestrador.
 
 ### TAREFAS
-- Identificar a intenção principal (consultar, resumir, investigar anomalia, comparar períodos).
+- Identificar a intenção principal (consultar, resumir, investigar anomalia).
 - Se necessário, pedir UMA pergunta mínima de clarificação (usar campo `esclarecer`).
 
 
